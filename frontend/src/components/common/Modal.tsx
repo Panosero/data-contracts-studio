@@ -25,18 +25,27 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
-      <div className={`bg-white rounded-xl p-6 w-full ${sizeClasses[size]} max-h-[90vh] overflow-y-auto shadow-2xl`}>
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-2xl font-bold text-gray-800">{title}</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 theme-bg-overlay backdrop-blur"
+        onClick={onClose}
+      />
+      
+      {/* Modal */}
+      <div className={`relative bg-white dark:bg-gray-900 salmon:bg-orange-50 rounded-2xl p-8 w-full ${sizeClasses[size]} max-h-[90vh] overflow-y-auto theme-shadow-xl fade-in border border-gray-200 dark:border-gray-700 salmon:border-orange-200`}>
+        <div className="flex justify-between items-start mb-6">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 salmon:text-orange-900">{title}</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-xl"
+            className="text-gray-500 dark:text-gray-400 salmon:text-orange-600 hover:text-gray-700 dark:hover:text-gray-200 salmon:hover:text-orange-800 text-2xl transition-colors p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 salmon:hover:bg-orange-100"
           >
             ×
           </button>
         </div>
-        {children}
+        <div className="text-gray-900 dark:text-gray-100 salmon:text-orange-900">
+          {children}
+        </div>
       </div>
     </div>
   );

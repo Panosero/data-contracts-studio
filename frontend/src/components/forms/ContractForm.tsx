@@ -84,12 +84,12 @@ export const ContractForm: React.FC<ContractFormProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 salmon:text-orange-800 mb-1">
             Status
           </label>
           <select
             {...register('status')}
-            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-green-400"
+            className="w-full px-4 py-2 bg-white dark:bg-gray-800 salmon:bg-orange-50 text-gray-900 dark:text-gray-100 salmon:text-orange-900 border border-gray-300 dark:border-gray-600 salmon:border-orange-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
           >
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
@@ -99,7 +99,7 @@ export const ContractForm: React.FC<ContractFormProps> = ({
 
         <div>
           <div className="flex justify-between items-center mb-4">
-            <label className="text-sm font-medium text-gray-700">Fields</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-200 salmon:text-orange-800">Fields</label>
             <Button
               type="button"
               size="sm"
@@ -111,7 +111,7 @@ export const ContractForm: React.FC<ContractFormProps> = ({
 
           <div className="space-y-4">
             {fields.map((field, index) => (
-              <div key={field.id} className="p-4 border border-gray-200 rounded-lg">
+              <div key={field.id} className="p-4 border border-gray-300 dark:border-gray-600 salmon:border-orange-300 bg-gray-50 dark:bg-gray-800 salmon:bg-orange-50 rounded-lg">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Input
                     label="Field Name"
@@ -122,12 +122,12 @@ export const ContractForm: React.FC<ContractFormProps> = ({
                   />
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 salmon:text-orange-800 mb-1">
                       Type
                     </label>
                     <select
                       {...register(`fields.${index}.type`)}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-green-400"
+                      className="w-full px-4 py-2 bg-white dark:bg-gray-700 salmon:bg-orange-100 text-gray-900 dark:text-gray-100 salmon:text-orange-900 border border-gray-300 dark:border-gray-500 salmon:border-orange-400 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     >
                       {fieldTypes.map((type) => (
                         <option key={type} value={type}>
