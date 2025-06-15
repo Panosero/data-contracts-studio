@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { useContracts, useCreateContract, useDeleteContract, useAutoGenerateFields } from '../hooks/useContracts';
+import { useContracts, useCreateContract, useUpdateContract, useDeleteContract, useAutoGenerateFields } from '../hooks/useContracts';
 import { ContractCard } from '../components/contracts/ContractCard';
 import { ContractForm } from '../components/forms/ContractForm';
 import { AutoGenerateForm } from '../components/forms/AutoGenerateForm';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
+import { Modal } from '../components/common/Modal';
 import { DataContract, DataContractCreate, AutoGenerateRequest } from '../types/contract';
 
 export const HomePage: React.FC = () => {
@@ -12,10 +13,13 @@ export const HomePage: React.FC = () => {
   const [status, setStatus] = useState<string>('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showAutoGenerate, setShowAutoGenerate] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [selectedContract, setSelectedContract] = useState<DataContract | null>(null);
+  const [editingContract, setEditingContract] = useState<DataContract | null>(null);
 
   const { data: contracts, isLoading, error } = useContracts({ search, status });
   const createContract = useCreateContract();
+  const updateContract = useUpdateContract();
   const deleteContract = useDeleteContract();
   const autoGenerateFields = useAutoGenerateFields();
 
@@ -36,12 +40,26 @@ export const HomePage: React.FC = () => {
 
   const handleCreateContract = async (contractData: DataContractCreate) => {
     try {
-      await createContract.mutateAsync(contractData);
+      if (editingContract) {
+        // Update existing contract
+        await updateContract.mutateAsync({
+          id: editingContract.id,
+          contract: contractData
+        });
+        showNotification('Contract updated successfully!');
+      } else {
+        // Create new contract
+        await createContract.mutateAsync(contractData);
+        showNotification('Contract created successfully!');
+      }
       setShowCreateForm(false);
-      showNotification('Contract created successfully!');
+      setEditingContract(null);
     } catch (error) {
-      console.error('Failed to create contract:', error);
-      showNotification('Failed to create contract', 'error');
+      console.error('Failed to save contract:', error);
+      showNotification(
+        `Failed to ${editingContract ? 'update' : 'create'} contract`,
+        'error'
+      );
     }
   };
 
@@ -80,11 +98,11 @@ export const HomePage: React.FC = () => {
 
   const handleViewContract = (contract: DataContract) => {
     setSelectedContract(contract);
-    // You could show a detailed view modal here
+    setShowViewModal(true);
   };
 
   const handleEditContract = (contract: DataContract) => {
-    setSelectedContract(contract);
+    setEditingContract(contract);
     setShowCreateForm(true);
   };
 
@@ -191,13 +209,130 @@ export const HomePage: React.FC = () => {
           </div>
         )}
 
-        {/* Create Contract Modal */}
+        {/* Create/Edit Contract Modal */}
         <ContractForm
           isOpen={showCreateForm}
-          onClose={() => setShowCreateForm(false)}
+          onClose={() => {
+            setShowCreateForm(false);
+            setEditingContract(null);
+          }}
           onSubmit={handleCreateContract}
-          isLoading={createContract.isLoading}
+          initialData={editingContract || undefined}
+          isLoading={createContract.isLoading || updateContract.isLoading}
         />
+
+        {/* View Contract Modal */}
+        {selectedContract && (
+          <Modal
+            isOpen={showViewModal}
+            onClose={() => {
+              setShowViewModal(false);
+              setSelectedContract(null);
+            }}
+            title={`Contract: ${selectedContract.name}`}
+            size="lg"
+          >
+            <div className="space-y-6">
+              {/* Contract Details */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <div className="px-3 py-2 bg-gray-50 rounded-lg">{selectedContract.name}</div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Version</label>
+                  <div className="px-3 py-2 bg-gray-50 rounded-lg">{selectedContract.version}</div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <div className="px-3 py-2 bg-gray-50 rounded-lg">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      selectedContract.status === 'active' ? 'bg-green-100 text-green-800' :
+                      selectedContract.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {selectedContract.status}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Created</label>
+                  <div className="px-3 py-2 bg-gray-50 rounded-lg">
+                    {new Date(selectedContract.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+              </div>
+
+              {/* Fields */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Fields ({selectedContract.fields.length})
+                </label>
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {selectedContract.fields.map((field, index) => (
+                    <div key={index} className="bg-gray-50 rounded-lg p-4">
+                      <div className="grid grid-cols-3 gap-4">
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Name</div>
+                          <div className="text-sm text-gray-900">{field.name}</div>
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Type</div>
+                          <div className="text-sm text-gray-900">{field.type}</div>
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">Required</div>
+                          <div className="text-sm text-gray-900">
+                            {field.required ? (
+                              <span className="text-green-600">✓ Yes</span>
+                            ) : (
+                              <span className="text-gray-500">✗ No</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      {field.description && (
+                        <div className="mt-2">
+                          <div className="text-sm font-medium text-gray-700">Description</div>
+                          <div className="text-sm text-gray-600">{field.description}</div>
+                        </div>
+                      )}
+                      {field.constraints && Object.keys(field.constraints).length > 0 && (
+                        <div className="mt-2">
+                          <div className="text-sm font-medium text-gray-700">Constraints</div>
+                          <div className="text-sm text-gray-600">
+                            {JSON.stringify(field.constraints, null, 2)}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4 border-t">
+                <Button
+                  onClick={() => {
+                    setShowViewModal(false);
+                    handleEditContract(selectedContract);
+                  }}
+                >
+                  Edit Contract
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setShowViewModal(false);
+                    setSelectedContract(null);
+                  }}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          </Modal>
+        )}
 
         {/* Auto-Generate Modal */}
         <AutoGenerateForm
