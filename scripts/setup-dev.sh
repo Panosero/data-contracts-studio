@@ -48,110 +48,88 @@ check_requirements() {
     print_status "All requirements satisfied ✓"
 }
 
-# Setup backend
+# Setup backend using Makefile
 setup_backend() {
-    print_status "Setting up backend..."
+    print_status "Setting up backend using Makefile..."
 
-    cd backend
-
-    # Create virtual environment if it doesn't exist
-    if [ ! -d "venv" ]; then
-        print_status "Creating Python virtual environment..."
-        python3 -m venv venv
-    fi
-
-    # Activate virtual environment
-    source venv/bin/activate
-
-    # Install dependencies
-    print_status "Installing Python dependencies..."
-    pip install -r requirements.txt
+    # Use Makefile to install backend dependencies
+    make install-backend
 
     # Copy environment file if it doesn't exist
-    if [ ! -f ".env" ]; then
-        print_status "Creating .env file..."
-        cp .env.example .env 2>/dev/null || echo "DEBUG=True
+    if [ ! -f "backend/.env" ]; then
+        print_status "Creating backend .env file..."
+        echo "DEBUG=True
 DATABASE_URL=sqlite:///./data_contracts.db
 SECRET_KEY=dev-secret-key-change-in-production
-ALLOWED_ORIGINS=[\"http://localhost:3000\"]" >.env
+ALLOWED_ORIGINS=[\"http://localhost:3000\"]" > backend/.env
     fi
 
-    # Initialize database
-    print_status "Initializing database..."
-    python -c "from app.core.database import engine, Base; Base.metadata.create_all(bind=engine)"
+    # Initialize database using Makefile
+    make db-init 2>/dev/null || {
+        print_warning "Database initialization failed, trying manual setup..."
+        cd backend
+        source venv/bin/activate
+        python -c "from app.core.database import engine, Base; Base.metadata.create_all(bind=engine)"
+        cd ..
+    }
 
-    cd ..
     print_status "Backend setup complete ✓"
 }
 
-# Setup frontend
+# Setup frontend using Makefile
 setup_frontend() {
-    print_status "Setting up frontend..."
+    print_status "Setting up frontend using Makefile..."
 
-    cd frontend
-
-    # Install dependencies
-    print_status "Installing Node.js dependencies..."
-    npm install
+    # Use Makefile to install frontend dependencies
+    make install-frontend
 
     # Copy environment file if it doesn't exist
-    if [ ! -f ".env" ]; then
-        print_status "Creating .env file..."
-        cp .env.example .env 2>/dev/null || echo "REACT_APP_API_URL=http://localhost:8000/api/v1
+    if [ ! -f "frontend/.env" ]; then
+        print_status "Creating frontend .env file..."
+        echo "REACT_APP_API_URL=http://localhost:8000/api/v1
 REACT_APP_APP_NAME=Data Contracts Studio
-REACT_APP_VERSION=1.0.0" >.env
+REACT_APP_VERSION=1.0.0" > frontend/.env
     fi
 
-    cd ..
     print_status "Frontend setup complete ✓"
 }
 
-# Create run scripts
+# Create run scripts that use Makefile
 create_run_scripts() {
-    print_status "Creating run scripts..."
+    print_status "Creating run scripts that leverage Makefile..."
 
-    # Backend run script
+    # Backend run script - uses Makefile
     cat >run-backend.sh <<'EOF'
 #!/bin/bash
-cd backend
-source venv/bin/activate
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+echo "🐍 Starting backend using Makefile..."
+make backend-dev
 EOF
     chmod +x run-backend.sh
 
-    # Frontend run script
+    # Frontend run script - uses Makefile
     cat >run-frontend.sh <<'EOF'
 #!/bin/bash
-cd frontend
-npm start
+echo "⚛️ Starting frontend using Makefile..."
+make frontend-dev
 EOF
     chmod +x run-frontend.sh
 
-    # Combined run script
+    # Combined run script - uses Makefile
     cat >run-dev.sh <<'EOF'
 #!/bin/bash
-echo "Starting Data Contracts Studio in development mode..."
+echo "🚀 Starting Data Contracts Studio using Makefile..."
 echo "Backend will be available at: http://localhost:8000"
 echo "Frontend will be available at: http://localhost:3000"
 echo "API Documentation: http://localhost:8000/docs"
 echo ""
 echo "Press Ctrl+C to stop all services"
 
-# Start backend in background
-./run-backend.sh &
-BACKEND_PID=$!
-
-# Start frontend in background
-./run-frontend.sh &
-FRONTEND_PID=$!
-
-# Wait for user to press Ctrl+C
-trap "echo 'Stopping services...'; kill $BACKEND_PID $FRONTEND_PID; exit" INT
-wait
+# Use Makefile's dev command which runs both services
+make dev
 EOF
     chmod +x run-dev.sh
 
-    print_status "Run scripts created ✓"
+    print_status "Run scripts created (using Makefile) ✓"
 }
 
 # Main setup process
@@ -165,12 +143,23 @@ main() {
 
     print_status "Setup complete! 🎉"
     echo ""
-    echo "To start the development environment:"
-    echo "  ./run-dev.sh          # Start both frontend and backend"
-    echo "  ./run-backend.sh      # Start only backend"
-    echo "  ./run-frontend.sh     # Start only frontend"
+    echo "🎯 Recommended ways to start development:"
+    echo "  make dev               # Start both frontend and backend (parallel)"
+    echo "  make backend-dev       # Start only backend"
+    echo "  make frontend-dev      # Start only frontend"
     echo ""
-    echo "URLs:"
+    echo "📁 Alternative individual scripts (created for convenience):"
+    echo "  ./run-dev.sh          # Uses 'make dev'"
+    echo "  ./run-backend.sh      # Uses 'make backend-dev'"
+    echo "  ./run-frontend.sh     # Uses 'make frontend-dev'"
+    echo ""
+    echo "🔧 Other useful commands:"
+    echo "  make test             # Run all tests"
+    echo "  make lint             # Run linting"
+    echo "  make clean            # Clean build artifacts"
+    echo "  make help             # See all available commands"
+    echo ""
+    echo "🌍 URLs:"
     echo "  Frontend: http://localhost:3000"
     echo "  Backend:  http://localhost:8000"
     echo "  API Docs: http://localhost:8000/docs"
