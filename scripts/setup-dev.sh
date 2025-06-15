@@ -61,7 +61,7 @@ setup_backend() {
         echo "DEBUG=True
 DATABASE_URL=sqlite:///./data_contracts.db
 SECRET_KEY=dev-secret-key-change-in-production
-ALLOWED_ORIGINS=[\"http://localhost:3000\"]" > backend/.env
+ALLOWED_ORIGINS=[\"http://localhost:3000\"]" >backend/.env
     fi
 
     # Initialize database using Makefile
@@ -88,7 +88,7 @@ setup_frontend() {
         print_status "Creating frontend .env file..."
         echo "REACT_APP_API_URL=http://localhost:8000/api/v1
 REACT_APP_APP_NAME=Data Contracts Studio
-REACT_APP_VERSION=1.0.0" > frontend/.env
+REACT_APP_VERSION=1.0.0" >frontend/.env
     fi
 
     print_status "Frontend setup complete ✓"
@@ -143,12 +143,14 @@ main() {
 
     print_status "Setup complete! 🎉"
     echo ""
-    echo "🎯 Recommended ways to start development:"
-    echo "  make dev               # Start both frontend and backend (parallel)"
-    echo "  make backend-dev       # Start only backend"
-    echo "  make frontend-dev      # Start only frontend"
+    echo "🚀 Super Quick Start:"
+    echo "  make dev               # Install everything and start development"
     echo ""
-    echo "📁 Alternative individual scripts (created for convenience):"
+    echo "🎯 Individual commands:"
+    echo "  make backend-dev       # Start backend (auto-installs if needed)"
+    echo "  make frontend-dev      # Start frontend (auto-installs if needed)"
+    echo ""
+    echo "📁 Alternative convenience scripts:"
     echo "  ./run-dev.sh          # Uses 'make dev'"
     echo "  ./run-backend.sh      # Uses 'make backend-dev'"
     echo "  ./run-frontend.sh     # Uses 'make frontend-dev'"
@@ -159,7 +161,7 @@ main() {
     echo "  make clean            # Clean build artifacts"
     echo "  make help             # See all available commands"
     echo ""
-    echo "🌍 URLs:"
+    echo "🌍 URLs (when running):"
     echo "  Frontend: http://localhost:3000"
     echo "  Backend:  http://localhost:8000"
     echo "  API Docs: http://localhost:8000/docs"

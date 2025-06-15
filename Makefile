@@ -5,16 +5,22 @@ help:
 	@echo "Data Contracts Studio - Development Commands"
 	@echo "============================================="
 	@echo ""
-	@echo "Setup & Installation:"
+	@echo "🚀 Quick Start:"
+	@echo "  make dev       - Install dependencies and start development servers"
+	@echo ""
+	@echo "📦 Setup & Installation:"
 	@echo "  install        - Install all dependencies (backend + frontend)"
+	@echo "  install-backend - Install only backend dependencies"
+	@echo "  install-frontend - Install only frontend dependencies"
+	@echo "  check-deps     - Check if dependencies are installed"
 	@echo "  clean          - Clean build artifacts and caches"
 	@echo ""
-	@echo "Development:"
-	@echo "  dev            - Start both backend and frontend in development mode"
-	@echo "  backend-dev    - Start only backend in development mode"
-	@echo "  frontend-dev   - Start only frontend in development mode"
+	@echo "🔧 Development:"
+	@echo "  dev            - Install dependencies and start both servers"
+	@echo "  backend-dev    - Start backend server (auto-installs if needed)"
+	@echo "  frontend-dev   - Start frontend server (auto-installs if needed)"
 	@echo ""
-	@echo "Testing:"
+	@echo "🧪 Testing:"
 	@echo "  test           - Run all tests (backend + frontend)"
 	@echo "  test-backend   - Run backend tests only"
 	@echo "  test-frontend  - Run frontend tests only"
@@ -51,7 +57,7 @@ install-frontend:
 	@echo "✅ Frontend dependencies installed"
 
 # Development
-dev:
+dev: install
 	@echo "🚀 Starting development environment..."
 	@echo "Backend: http://localhost:8000"
 	@echo "Frontend: http://localhost:3000"
@@ -60,10 +66,18 @@ dev:
 
 backend-dev:
 	@echo "🐍 Starting backend development server..."
+	@if [ ! -d "backend/venv" ]; then \
+		echo "🔧 Backend virtual environment not found. Installing..."; \
+		make install-backend; \
+	fi
 	cd backend && source venv/bin/activate && uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 frontend-dev:
 	@echo "⚛️  Starting frontend development server..."
+	@if [ ! -d "frontend/node_modules" ]; then \
+		echo "🔧 Frontend dependencies not found. Installing..."; \
+		make install-frontend; \
+	fi
 	cd frontend && npm start
 
 # Testing
@@ -176,3 +190,22 @@ setup-ci:
 	@echo "   - REACT_APP_API_URL"
 	@echo "2. Enable GitHub Pages in repository settings"
 	@echo "3. Configure deployment environments"
+
+# Check status of dependencies
+check-deps:
+	@echo "🔍 Checking dependencies status..."
+	@if [ -d "backend/venv" ]; then \
+		echo "✅ Backend virtual environment: Found"; \
+	else \
+		echo "❌ Backend virtual environment: Missing (run 'make install-backend')"; \
+	fi
+	@if [ -d "frontend/node_modules" ]; then \
+		echo "✅ Frontend dependencies: Found"; \
+	else \
+		echo "❌ Frontend dependencies: Missing (run 'make install-frontend')"; \
+	fi
+	@if [ -f "backend/data_contracts.db" ]; then \
+		echo "✅ Database: Found"; \
+	else \
+		echo "⚠️  Database: Not initialized (will be created automatically)"; \
+	fi
