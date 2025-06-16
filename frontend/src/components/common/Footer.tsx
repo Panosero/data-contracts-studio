@@ -2,6 +2,9 @@ import React from 'react';
 import { VersionBadge } from './VersionBadge';
 
 export const Footer: React.FC = () => {
+  // Get the base API URL without the /api/v1 suffix for direct FastAPI endpoints
+  const envApiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const API_BASE_URL = envApiUrl.replace(/\/api\/v1$/, ''); // Remove /api/v1 suffix if present
   return (
     <footer className="mt-16 py-8 border-t border-slate-600/30 theme-bg-card/50">
       <div className="container mx-auto px-6">
@@ -18,15 +21,15 @@ export const Footer: React.FC = () => {
           </div>
           
           <div className="flex flex-wrap gap-4 text-xs theme-text-secondary">
-            <a href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">
+            <a href={`${API_BASE_URL}/docs`} target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">
               API Documentation
             </a>
             <span>•</span>
-            <a href="http://localhost:8000/health" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors">
+            <a href={`${API_BASE_URL}/health`} target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors">
               Health Check
             </a>
             <span>•</span>
-            <a href="http://localhost:8000/version" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition-colors">
+            <a href={`${API_BASE_URL}/version`} target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition-colors">
               Version Info
             </a>
             <span>•</span>
