@@ -1,6 +1,6 @@
 {
     "name": "data-contracts-studio",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "A modern, scalable data contract management platform built with React and FastAPI",
     "private": true,
     "scripts": {

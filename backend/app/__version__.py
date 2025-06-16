@@ -6,7 +6,7 @@ Data Contracts Studio backend application.
 
 from __future__ import annotations
 
-__version__: str = "0.0.4"
+__version__: str = "0.0.5"
 __title__: str = "Data Contracts Studio"
 __description__: str = "A modern, scalable data contract management platform"
 __author__: str = "Panagiotis Erodotou"
