@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App';
+import { MemoryRouter } from 'react-router-dom';
+import { HomePage } from './pages/HomePage';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 const createTestQueryClient = () =>
   new QueryClient({
@@ -15,16 +16,18 @@ const createTestQueryClient = () =>
 const renderWithProviders = (ui: React.ReactElement) => {
   const testQueryClient = createTestQueryClient();
   return render(
-    <QueryClientProvider client={testQueryClient}>
-      <BrowserRouter>
-        {ui}
-      </BrowserRouter>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={testQueryClient}>
+        <MemoryRouter>
+          {ui}
+        </MemoryRouter>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 };
 
-test('renders data contracts portal header', () => {
-  renderWithProviders(<App />);
-  const headerElement = screen.getByText(/Data Contract Portal/i);
+test('renders data contracts studio header', () => {
+  renderWithProviders(<HomePage />);
+  const headerElement = screen.getByText(/Data Contract Studio/i);
   expect(headerElement).toBeInTheDocument();
 });

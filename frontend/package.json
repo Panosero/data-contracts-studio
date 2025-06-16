@@ -47,6 +47,14 @@
             "last 1 safari version"
         ]
     },
+    "jest": {
+        "transformIgnorePatterns": [
+            "node_modules/(?!(axios)/)"
+        ],
+        "moduleNameMapper": {
+            "^axios$": "axios/dist/node/axios.cjs"
+        }
+    },
     "devDependencies": {
         "@types/react-query": "^1.2.9",
         "prettier": "^3.1.0",
