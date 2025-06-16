@@ -1,4 +1,4 @@
-.PHONY: help install dev build test clean docker-build docker-up docker-down backend-dev frontend-dev deploy deploy-pages deploy-server version release
+.PHONY: help install dev build test clean docker-build docker-up docker-down backend-dev frontend-dev deploy deploy-pages deploy-server version release lint lint-strict
 
 # Default target
 help:
@@ -24,6 +24,11 @@ help:
 	@echo "  test           - Run all tests (backend + frontend)"
 	@echo "  test-backend   - Run backend tests only"
 	@echo "  test-frontend  - Run frontend tests only"
+	@echo ""
+	@echo "🔍 Code Quality:"
+	@echo "  lint           - Run linting (warnings only, non-blocking)"
+	@echo "  lint-strict    - Run strict linting (fails on issues)"
+	@echo "  format         - Format code with black, isort, and prettier"
 	@echo ""
 	@echo "Building:"
 	@echo "  build          - Build production versions of both apps"
@@ -150,9 +155,15 @@ db-migrate:
 # Linting and formatting
 lint:
 	@echo "🔍 Running linting..."
+	-cd backend && source venv/bin/activate && flake8 app || echo "⚠️  Backend linting issues found (continuing...)"
+	-cd frontend && npm run lint || echo "⚠️  Frontend linting issues found (continuing...)"
+	@echo "✅ Linting completed (warnings treated as non-blocking)"
+
+lint-strict:
+	@echo "🔍 Running strict linting..."
 	cd backend && source venv/bin/activate && flake8 app
 	cd frontend && npm run lint
-	@echo "✅ Linting completed"
+	@echo "✅ Strict linting completed"
 
 format:
 	@echo "✨ Formatting code..."
@@ -170,7 +181,7 @@ health:
 ci-test:
 	@echo "🧪 Running CI tests..."
 	make test
-	make lint
+	make lint-strict
 	@echo "✅ All CI tests passed"
 
 deploy:

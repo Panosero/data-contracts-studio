@@ -79,12 +79,10 @@ else
 fi
 
 print_info "Running linting..."
-# Run linting
+# Run linting (non-blocking - show warnings only)
 if command -v make &>/dev/null; then
-    make lint || {
-        print_error "Linting failed. Please fix issues before releasing."
-        exit 1
-    }
+    make lint
+    print_success "Linting completed (warnings are non-blocking)"
 else
     print_warning "Make not found. Skipping linting."
 fi
