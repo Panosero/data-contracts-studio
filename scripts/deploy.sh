@@ -1,160 +1,175 @@
 #!/bin/bash
 
-# Data Contracts Studio - Docker Deployment Script with IP Detection
-# This script helps deploy the application using Docker with IP-based configuration
+# Data Contracts Studio - Simple Deployment
+# Uses .env file for all configuration
 
 set -e
 
-echo "🚀 Deploying Data Contracts Studio with Docker..."
+echo "🚀 Data Contracts Studio - Simple Deployment"
 
-# Colors for output
-RED='\033[0;31m'
+# Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+RED='\033[0;31m'
+NC='\033[0m'
 
-print_status() {
-    echo -e "${GREEN}[INFO]${NC} $1"
-}
+print_status() { echo -e "${GREEN}[INFO]${NC} $1"; }
+print_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+print_info() { echo -e "${BLUE}[CONFIG]${NC} $1"; }
+print_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
+# Check if .env exists
+check_env_file() {
+    if [ ! -f ".env" ]; then
+        print_warning ".env file not found!"
+        echo ""
+        echo "Creating .env file from template..."
 
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
+        if [ -f ".env.example" ]; then
+            cp .env.example .env
+            print_status ".env file created from template"
+        else
+            print_error ".env.example not found!"
+            exit 1
+        fi
 
-print_info() {
-    echo -e "${BLUE}[CONFIG]${NC} $1"
-}
-
-# Get server IP address
-get_server_ip() {
-    print_status "Detecting server IP address..."
-    
-    # Try multiple methods to get the server's public IP
-    SERVER_IP=$(curl -s ifconfig.me 2>/dev/null || curl -s icanhazip.com 2>/dev/null || curl -s ipecho.net/plain 2>/dev/null || hostname -I | awk '{print $1}')
-    
-    if [ -z "$SERVER_IP" ]; then
-        print_warning "Could not automatically detect server IP. Please enter it manually:"
-        read -p "Enter your server IP address: " SERVER_IP
+        echo ""
+        print_warning "🔒 IMPORTANT: Edit .env file with your settings:"
+        echo "  1. Set your SERVER_IP (or leave as auto-detect)"
+        echo "  2. Change POSTGRES_PASSWORD to a secure password"
+        echo "  3. Change SECRET_KEY to a secure random string"
+        echo "  4. Add your API keys (OPENAI_API_KEY, etc.)"
+        echo ""
+        echo "Example:"
+        echo "  nano .env"
+        echo ""
+        read -p "Press Enter after editing .env file..." -r
     fi
-    
-    print_info "Server IP detected/configured: $SERVER_IP"
-    
-    # Confirm with user
-    read -p "Is this correct? (y/n): " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        read -p "Enter the correct server IP address: " SERVER_IP
+}
+
+# Auto-detect server IP if needed
+setup_server_ip() {
+    # Load current .env
+    if grep -q "SERVER_IP=auto-detect" .env; then
+        print_status "Auto-detecting server IP..."
+
+        SERVER_IP=$(curl -s ifconfig.me 2>/dev/null || curl -s icanhazip.com 2>/dev/null || hostname -I | awk '{print $1}')
+
+        if [ -z "$SERVER_IP" ]; then
+            print_warning "Could not auto-detect IP. Please enter manually:"
+            read -p "Server IP: " SERVER_IP
+        fi
+
+        print_info "Server IP: $SERVER_IP"
+
+        # Update .env file
+        sed -i.bak "s/SERVER_IP=auto-detect/SERVER_IP=$SERVER_IP/" .env
+        rm -f .env.bak
+    else
+        SERVER_IP=$(grep "SERVER_IP=" .env | cut -d'=' -f2)
+        print_info "Using configured IP: $SERVER_IP"
     fi
-    
-    export SERVER_IP
 }
 
-# Create .env file
-create_env_file() {
-    print_status "Creating environment configuration..."
-    
-    cat > .env <<EOF
-# Server Configuration
-SERVER_IP=$SERVER_IP
+# Generate secure secrets if needed
+setup_secrets() {
+    print_status "Checking security configuration..."
 
-# Security
-SECRET_KEY=$(openssl rand -hex 32)
+    # Generate SECRET_KEY if needed
+    if grep -q "SECRET_KEY=change-this" .env; then
+        SECRET_KEY=$(openssl rand -hex 32)
+        sed -i.bak "s/SECRET_KEY=change-this.*/SECRET_KEY=$SECRET_KEY/" .env
+        rm -f .env.bak
+        print_status "Generated secure SECRET_KEY"
+    fi
 
-# Database
-POSTGRES_DB=datacontracts
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=$(openssl rand -base64 32)
-
-# API Configuration
-DEBUG=False
-ALLOWED_ORIGINS=["http://localhost", "http://127.0.0.1", "http://$SERVER_IP"]
-EOF
-
-    print_status "Environment file created ✓"
+    # Generate DB password if needed
+    if grep -q "POSTGRES_PASSWORD=change-this" .env; then
+        DB_PASSWORD=$(openssl rand -base64 32)
+        sed -i.bak "s/POSTGRES_PASSWORD=change-this.*/POSTGRES_PASSWORD=$DB_PASSWORD/" .env
+        rm -f .env.bak
+        print_status "Generated secure database password"
+    fi
 }
 
-# Check if Docker is installed
+# Check Docker
 check_docker() {
     if ! command -v docker &>/dev/null; then
-        print_error "Docker is required but not installed."
-        print_info "Visit: https://docs.docker.com/get-docker/"
+        print_error "Docker is required. Install from: https://docs.docker.com/get-docker/"
         exit 1
     fi
 
     if ! command -v docker-compose &>/dev/null; then
-        print_error "Docker Compose is required but not installed."
-        print_info "Visit: https://docs.docker.com/compose/install/"
+        print_error "Docker Compose is required. Install from: https://docs.docker.com/compose/install/"
         exit 1
     fi
 
-    print_status "Docker and Docker Compose are available ✓"
+    print_status "Docker and Docker Compose available ✓"
 }
 
-# Build and deploy
+# Deploy
 deploy() {
-    print_status "Building and deploying application..."
+    print_status "Starting deployment..."
 
     # Stop existing containers
     docker-compose down 2>/dev/null || true
 
-    # Build images with no cache for fresh build
-    print_status "Building Docker images..."
-    docker-compose build --no-cache
+    # Build and start
+    print_status "Building and starting services..."
+    docker-compose up -d --build
 
-    # Start services
-    print_status "Starting services..."
-    docker-compose up -d
-
-    # Wait for services to be ready
+    # Wait for services
     print_status "Waiting for services to start..."
     sleep 15
 
-    # Check if services are running
+    # Check status
     if docker-compose ps | grep -q "Up"; then
         print_status "Services are running ✓"
     else
-        print_error "Some services failed to start. Check logs:"
-        docker-compose logs
+        print_error "Some services failed to start!"
+        echo ""
+        echo "Check logs with: docker-compose logs"
         exit 1
     fi
 }
 
-# Show completion information
-show_completion_info() {
-    print_status "Deployment complete! 🎉"
+# Show completion info
+show_info() {
+    # Get ports from .env
+    FRONTEND_PORT=$(grep "FRONTEND_PORT=" .env | cut -d'=' -f2)
+    BACKEND_PORT=$(grep "BACKEND_PORT=" .env | cut -d'=' -f2)
+
     echo ""
-    echo "Your application is now running:"
-    echo "  📱 Website: http://$SERVER_IP"
-    echo "  🔌 API: http://$SERVER_IP:8000/api/v1"
-    echo "  📚 API Docs: http://$SERVER_IP:8000/docs"
-    echo "  🗄️  Database: PostgreSQL on port 5432"
+    print_status "🎉 Deployment Complete!"
+    echo ""
+    echo "Your application is running:"
+    echo "  📱 Website:  http://$SERVER_IP:$FRONTEND_PORT"
+    echo "  🔌 API:      http://$SERVER_IP:$BACKEND_PORT/api/v1"
+    echo "  📚 Docs:     http://$SERVER_IP:$BACKEND_PORT/docs"
     echo ""
     echo "Useful commands:"
-    echo "  📊 View logs: docker-compose logs -f"
-    echo "  📈 Check status: docker-compose ps"
-    echo "  🔄 Restart: docker-compose restart"
-    echo "  🛑 Stop: docker-compose down"
-    echo "  🔄 Update: git pull && docker-compose up -d --build"
+    echo "  📊 Logs:     docker-compose logs -f"
+    echo "  📈 Status:   docker-compose ps"
+    echo "  🔄 Restart:  docker-compose restart"
+    echo "  🛑 Stop:     docker-compose down"
     echo ""
-    print_info "Access your application at: http://$SERVER_IP"
-    print_warning "Make sure ports 80 and 8000 are open in your server's firewall"
-    echo ""
-    echo "🔐 Database credentials are stored in .env file"
-    echo "🔑 API secret key has been generated automatically"
+
+    if [ "$FRONTEND_PORT" != "80" ]; then
+        print_warning "Make sure port $FRONTEND_PORT is open in your firewall"
+    fi
+
+    print_info "Configuration is stored in .env file"
 }
 
+# Main
 main() {
     check_docker
-    get_server_ip
-    create_env_file
+    check_env_file
+    setup_server_ip
+    setup_secrets
     deploy
-    show_completion_info
+    show_info
 }
 
-# Run deployment
 main "$@"

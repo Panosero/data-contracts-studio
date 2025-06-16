@@ -42,21 +42,21 @@ NGINX_ENABLED="/etc/nginx/sites-enabled"
 get_server_ip() {
     # Try multiple methods to get the server's public IP
     SERVER_IP=$(curl -s ifconfig.me 2>/dev/null || curl -s icanhazip.com 2>/dev/null || curl -s ipecho.net/plain 2>/dev/null || hostname -I | awk '{print $1}')
-    
+
     if [ -z "$SERVER_IP" ]; then
         print_warning "Could not automatically detect server IP. Please enter it manually:"
         read -p "Enter your server IP address: " SERVER_IP
     fi
-    
+
     print_info "Server IP detected/configured: $SERVER_IP"
-    
+
     # Confirm with user
     read -p "Is this correct? (y/n): " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         read -p "Enter the correct server IP address: " SERVER_IP
     fi
-    
+
     export SERVER_IP
 }
 
@@ -410,7 +410,7 @@ main() {
 
     # Get server IP first
     get_server_ip
-    
+
     check_permissions
     install_system_dependencies
     create_app_user

@@ -14,36 +14,37 @@ class AutoGenerationService:
 
         # Clean up the schema text
         schema_text = schema_text.strip()
-        
+
         # Parse CREATE TABLE statement
         lines = schema_text.split("\n")
         in_table_definition = False
-        
+
         for line in lines:
             line = line.strip()
-            
+
             # Skip empty lines and comments
             if not line or line.startswith("--") or line.startswith("#"):
                 continue
-                
+
             # Check if we're entering table definition
             if line.upper().startswith("CREATE TABLE"):
                 in_table_definition = True
                 continue
-                
+
             # Skip until we're in table definition
             if not in_table_definition:
                 continue
-                
+
             # Skip structural elements
-            if (line in ["(", ")", ");"] or 
-                line.upper().startswith(("PRIMARY KEY", "FOREIGN KEY", "CONSTRAINT", "INDEX", "KEY", "UNIQUE"))):
+            if line in ["(", ")", ");"] or line.upper().startswith(
+                ("PRIMARY KEY", "FOREIGN KEY", "CONSTRAINT", "INDEX", "KEY", "UNIQUE")
+            ):
                 continue
-                
+
             # Check if we've reached the end of table definition
             if line.endswith(");") or line.upper().startswith(("ALTER", "CREATE INDEX", "INSERT")):
                 break
-                
+
             # Try to parse as field definition
             field = AutoGenerationService._parse_sql_field(line)
             if field:
@@ -62,21 +63,48 @@ class AutoGenerationService:
 
     @staticmethod
     def generate_from_csv_data(csv_data: str) -> List[FieldSchema]:
-        """Generate fields from CSV data."""
-        lines = csv_data.strip().split("\n")
+        """Generate fields from CSV data or JSON array."""
+        data = csv_data.strip()
+        if not data:
+            return []
+
+        # Try to parse as JSON first
+        try:
+            json_data = json.loads(data)
+            if isinstance(json_data, list) and json_data:
+                # Handle JSON array of objects
+                return AutoGenerationService.generate_from_api_response(data)
+            elif isinstance(json_data, dict):
+                # Handle single JSON object
+                return AutoGenerationService.generate_from_api_response(data)
+        except json.JSONDecodeError:
+            # If not JSON, treat as CSV
+            pass
+
+        # Process as CSV
+        lines = data.split("\n")
         if not lines:
             return []
 
-        headers = [h.strip() for h in lines[0].split(",")]
+        # Handle CSV with headers
+        headers = [h.strip().strip('"') for h in lines[0].split(",")]
         fields = []
 
         # Analyze data types from sample rows
         sample_rows = lines[1:6] if len(lines) > 1 else []  # Use up to 5 sample rows
 
         for i, header in enumerate(headers):
-            field_type = AutoGenerationService._infer_type_from_samples(
-                [row.split(",")[i].strip() if i < len(row.split(",")) else "" for row in sample_rows]
-            )
+            if not header:  # Skip empty headers
+                continue
+
+            # Extract sample values for this column
+            sample_values = []
+            for row in sample_rows:
+                row_values = [val.strip().strip('"') for val in row.split(",")]
+                if i < len(row_values):
+                    sample_values.append(row_values[i])
+
+            field_type = AutoGenerationService._infer_type_from_samples(sample_values)
 
             fields.append(
                 FieldSchema(
@@ -94,7 +122,7 @@ class AutoGenerationService:
         """Parse a single SQL field definition."""
         # Remove trailing comma and clean up
         line = line.rstrip(",").strip()
-        
+
         # Skip empty lines or non-field lines
         if not line or len(line.split()) < 2:
             return None
@@ -110,7 +138,7 @@ class AutoGenerationService:
             "TEXT": "string",
             "CHAR": "string",
             "CHARACTER": "string",
-            "INTEGER": "integer", 
+            "INTEGER": "integer",
             "INT": "integer",
             "BIGINT": "integer",
             "SMALLINT": "integer",
@@ -141,7 +169,7 @@ class AutoGenerationService:
 
         # Check if field is required (not NULL)
         required = "NOT NULL" in line.upper()
-        
+
         # Check if field is a primary key (automatically required)
         if "PRIMARY KEY" in line.upper():
             required = True

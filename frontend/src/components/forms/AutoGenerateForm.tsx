@@ -4,6 +4,7 @@ import { AutoGenerateRequest } from '../../types/contract';
 import { Button } from '../common/Button';
 import { Input, Textarea } from '../common/Input';
 import { Modal } from '../common/Modal';
+import { FileUpload } from '../common/FileUpload';
 
 interface AutoGenerateFormProps {
   isOpen: boolean;
@@ -19,14 +20,18 @@ export const AutoGenerateForm: React.FC<AutoGenerateFormProps> = ({
   isLoading = false,
 }) => {
   const [sourceType, setSourceType] = useState<'database' | 'api' | 'file' | null>(null);
+  const [uploadedFileName, setUploadedFileName] = useState<string>('');
   
   const {
     register,
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<AutoGenerateRequest>();
+
+  const sourceData = watch('source_data');
 
   const handleFormSubmit = (data: AutoGenerateRequest) => {
     onGenerate({ ...data, source_type: sourceType! });
@@ -34,8 +39,14 @@ export const AutoGenerateForm: React.FC<AutoGenerateFormProps> = ({
 
   const handleClose = () => {
     setSourceType(null);
+    setUploadedFileName('');
     reset();
     onClose();
+  };
+
+  const handleFileLoad = (content: string, fileName: string) => {
+    setValue('source_data', content);
+    setUploadedFileName(fileName);
   };
 
   const loadDatabaseExample = () => {
@@ -305,53 +316,86 @@ export const AutoGenerateForm: React.FC<AutoGenerateFormProps> = ({
 
           {sourceType === 'file' && (
             <>
-              {/* Improved File Upload Section */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 salmon:from-orange-50 salmon:to-red-50 border border-purple-200 dark:border-purple-700/50 salmon:border-orange-200 rounded-2xl p-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-purple-500 dark:bg-purple-600 salmon:bg-orange-500 rounded-xl flex items-center justify-center">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 salmon:text-orange-900 mb-2">
-                      File Data Format
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 salmon:text-orange-700 mb-4">
-                      Paste your CSV or JSON file contents below. The system will analyze the structure and generate appropriate field definitions.
-                    </p>
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div className="bg-white/60 dark:bg-gray-800/60 salmon:bg-orange-50/60 rounded-lg p-3 border border-gray-200 dark:border-gray-600 salmon:border-orange-200">
-                        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 salmon:text-orange-800 mb-1">CSV Format:</div>
-                        <div className="text-xs font-mono text-gray-600 dark:text-gray-400 salmon:text-orange-700">
-                          id,name,email<br/>
-                          1,John,john@...<br/>
-                          2,Jane,jane@...
-                        </div>
+              {/* File Upload Section */}
+              <div className="space-y-6">
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 salmon:from-orange-50 salmon:to-red-50 border border-purple-200 dark:border-purple-700/50 salmon:border-orange-200 rounded-2xl p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 bg-purple-500 dark:bg-purple-600 salmon:bg-orange-500 rounded-xl flex items-center justify-center">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
                       </div>
-                      <div className="bg-white/60 dark:bg-gray-800/60 salmon:bg-orange-50/60 rounded-lg p-3 border border-gray-200 dark:border-gray-600 salmon:border-orange-200">
-                        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 salmon:text-orange-800 mb-1">JSON Array:</div>
-                        <div className="text-xs font-mono text-gray-600 dark:text-gray-400 salmon:text-orange-700">
-                          [&#123;"id":1,"name":"John"&#125;,<br/>
-                          &nbsp;&#123;"id":2,"name":"Jane"&#125;]
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 salmon:text-orange-900 mb-2">
+                        File Data Format
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 salmon:text-orange-700 mb-4">
+                        Upload or paste your CSV or JSON file contents. The system will analyze the structure and generate appropriate field definitions.
+                      </p>
+                      <div className="grid grid-cols-2 gap-3 mb-4">
+                        <div className="bg-white/60 dark:bg-gray-800/60 salmon:bg-orange-50/60 rounded-lg p-3 border border-gray-200 dark:border-gray-600 salmon:border-orange-200">
+                          <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 salmon:text-orange-800 mb-1">CSV Format:</div>
+                          <div className="text-xs font-mono text-gray-600 dark:text-gray-400 salmon:text-orange-700">
+                            id,name,email<br/>
+                            1,John,john@...<br/>
+                            2,Jane,jane@...
+                          </div>
+                        </div>
+                        <div className="bg-white/60 dark:bg-gray-800/60 salmon:bg-orange-50/60 rounded-lg p-3 border border-gray-200 dark:border-gray-600 salmon:border-orange-200">
+                          <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 salmon:text-orange-800 mb-1">JSON Array:</div>
+                          <div className="text-xs font-mono text-gray-600 dark:text-gray-400 salmon:text-orange-700">
+                            [&#123;"id":1,"name":"John"&#125;,<br/>
+                            &nbsp;&#123;"id":2,"name":"Jane"&#125;]
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
+
+                {/* File Upload Component */}
+                <FileUpload
+                  onFileLoad={handleFileLoad}
+                  accept=".csv,.json,.txt"
+                  maxSize={5}
+                  disabled={isLoading}
+                />
+
+                {/* Show uploaded file name if file was uploaded */}
+                {uploadedFileName && (
+                  <div className="bg-green-50 dark:bg-green-900/20 salmon:bg-orange-50 border border-green-200 dark:border-green-700 salmon:border-orange-200 rounded-lg p-3">
+                    <div className="flex items-center gap-2">
+                      <svg className="w-4 h-4 text-green-500 salmon:text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-sm font-medium text-green-700 dark:text-green-300 salmon:text-orange-700">
+                        File uploaded: {uploadedFileName}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Manual paste option */}
+                <div className="border-t border-gray-200 dark:border-gray-700 salmon:border-orange-200 pt-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 salmon:text-orange-700">
+                      Or paste data manually:
+                    </span>
+                  </div>
+                  <Textarea
+                    label="CSV/JSON Data"
+                    {...register('source_data', { required: 'File data is required' })}
+                    rows={8}
+                    placeholder="Paste your CSV or JSON data here..."
+                    className="font-mono text-sm"
+                    error={errors.source_data?.message}
+                    helperText="Paste your CSV data with headers or JSON array of objects"
+                    value={sourceData || ''}
+                  />
+                </div>
               </div>
-              
-              <Textarea
-                label="CSV/JSON Data"
-                {...register('source_data', { required: 'File data is required' })}
-                rows={12}
-                placeholder="Paste your CSV or JSON data here..."
-                className="font-mono text-sm"
-                error={errors.source_data?.message}
-                helperText="Paste your CSV data with headers or JSON array of objects"
-              />
             </>
           )}
 

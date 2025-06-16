@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global zoom level - 10% smaller for better fit */
+html {
+  zoom: 0.9;
+}
+
 /* Only Dark Theme Available - Light & Salmon modes coming soon! */
 
 :root {

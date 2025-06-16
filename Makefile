@@ -37,7 +37,7 @@ help:
 	@echo "  docker-dev     - Start development environment with Docker"
 	@echo ""
 	@echo "CI/CD & Deployment:"
-	@echo "  deploy         - Deploy with Docker (IP-based, recommended)"
+	@echo "  deploy         - Simple deployment using .env file"
 	@echo "  deploy-pages   - Deploy frontend to GitHub Pages"
 	@echo "  deploy-server  - Deploy to server without Docker"
 	@echo "  setup-ci       - Set up CI/CD configuration"
@@ -170,7 +170,7 @@ ci-test:
 	@echo "✅ All CI tests passed"
 
 deploy:
-	@echo "🚀 Deploying with Docker (IP-based)..."
+	@echo "🚀 Deploying Data Contracts Studio..."
 	chmod +x scripts/deploy.sh
 	./scripts/deploy.sh
 

@@ -1,15 +1,60 @@
-# Data Contracts Studio - Production Ready
+# Data Contracts Studio
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![React](https://img.shields.io/badge/React-18.0+-61DAFB.svg)](https://reactjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688.svg)](https://fastapi.tiangolo.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-007ACC.svg)](https://www.typescriptlang.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
+[![Deployment](https://img.shields.io/badge/Deployment-Ready-green.svg)](#-production-deployment)
 
 A modern, scalable data contract management platform built with React and FastAPI, following industry best practices and clean architecture principles.
 
+## 📸 Screenshots
+
+> **Note**: Screenshots will be added after running the application. See [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md) for instructions.
+
+### Main Dashboard
+<!-- ![Dashboard](docs/images/dashboard.png) -->
+*Contract management dashboard with search and filtering capabilities*
+
+### Auto-Generate Contracts
+<!-- ![Auto Generate](docs/images/auto-generate.png) -->
+*Generate contracts from database schemas, APIs, or file uploads*
+
+### File Upload Feature
+<!-- ![File Upload](docs/images/file-upload.png) -->
+*Drag & drop file upload with CSV/JSON support*
+
+---
+
+## 🚀 Quick Start
+
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd data-contracts-studio
+
+# Deploy with Docker (recommended)
+make deploy
+
+# Or start development environment
+make dev
+```
+
+**🎯 That's it!** Your application will be running and ready to use.
+
 ## 🚀 Features
 
-- **Modern Architecture**: Separate frontend (React + TypeScript) and backend (FastAPI + Python)
-- **Auto-Generation**: Generate contracts from database schemas, API responses, and CSV/JSON files
-- **Real-time Search**: Filter and search contracts with real-time updates
-- **Type Safety**: Full TypeScript support with proper type definitions
-- **Responsive Design**: Mobile-first design with Tailwind CSS
-- **Production Ready**: Docker support, environment management, and CI/CD ready
+- **🎯 Modern Architecture**: Separate frontend (React + TypeScript) and backend (FastAPI + Python)
+- **🤖 Auto-Generation**: Generate contracts from database schemas, API responses, and file uploads
+- **📁 File Upload**: Drag & drop interface for CSV and JSON files with automatic parsing and type detection
+- **🔍 Real-time Search**: Filter and search contracts with instant results
+- **🛡️ Type Safety**: Full TypeScript support with comprehensive type definitions
+- **📱 Responsive Design**: Mobile-first design with Tailwind CSS and dark mode
+- **🐳 Production Ready**: Docker support, environment management, and deployment scripts
+- **⚡ Performance**: Optimized builds, lazy loading, and efficient state management
+- **🔒 Security**: Environment-based configuration with secure secret management
 
 ## 🏗️ Architecture
 
@@ -262,32 +307,91 @@ make docker-up      # Start with Docker
 make clean          # Clean build artifacts
 ```
 
+## ⚙️ Configuration (.env file)
+
+### Simple Configuration with .env
+
+All configuration is done through a single `.env` file:
+
+```bash
+# 1. Copy the example file
+cp .env.example .env
+
+# 2. Edit with your settings
+nano .env
+
+# 3. Deploy
+make deploy
+```
+
+### Key Configuration Options
+
+```bash
+# Server settings
+SERVER_IP=192.168.1.100        # Your server IP (or auto-detect)
+FRONTEND_PORT=80               # Web interface port
+BACKEND_PORT=8000             # API port
+DATABASE_PORT=5432            # Database port
+
+# Secrets (keep secure!)
+POSTGRES_PASSWORD=your-secure-db-password
+SECRET_KEY=your-secure-secret-key
+
+# API Keys for LLM features
+OPENAI_API_KEY=sk-your-openai-key
+ANTHROPIC_API_KEY=your-anthropic-key
+```
+
+### Common Scenarios
+
+**Standard server:**
+```bash
+SERVER_IP=192.168.1.100
+FRONTEND_PORT=80
+BACKEND_PORT=8000
+```
+
+**Shared server (avoid port conflicts):**
+```bash
+SERVER_IP=192.168.1.100
+FRONTEND_PORT=8080
+BACKEND_PORT=8001
+DATABASE_PORT=5433
+```
+
+**Custom domain:**
+```bash
+SERVER_IP=data-contracts.company.com
+FRONTEND_PORT=80
+BACKEND_PORT=8000
+```
+
 ## 🚀 Production Deployment
 
-### Using Docker (Recommended) - IP-Based Access
-
-Deploy to your server using the server's IP address (no domain required):
+### Simple Deployment (Recommended)
 
 1. **Quick deployment**:
    ```bash
-   chmod +x scripts/deploy.sh
-   ./scripts/deploy.sh
+   git clone <repo>
+   cd data-contracts-studio
+   make deploy
    ```
    
    The script will:
-   - Automatically detect your server's IP address
-   - Configure the application for IP-based access
-   - Set up Docker containers with proper CORS settings
-   - Generate secure database credentials
+   - Create `.env` file if it doesn't exist
+   - Auto-detect your server IP
+   - Generate secure passwords and keys
+   - Start Docker containers
 
-2. **Manual Docker deployment**:
+2. **Custom configuration**:
    ```bash
-   # Set your server IP
-   export SERVER_IP=YOUR_SERVER_IP_HERE
-   
-   # Create .env file
-   echo "SERVER_IP=$SERVER_IP" > .env
-   echo "SECRET_KEY=$(openssl rand -hex 32)" >> .env
+   git clone <repo>
+   cd data-contracts-studio
+   cp .env.example .env
+   # Edit .env with your settings
+   nano .env
+   make deploy
+   ```
    
    # Deploy
    docker-compose up -d --build
@@ -295,18 +399,11 @@ Deploy to your server using the server's IP address (no domain required):
 
 ### Server Deployment without Docker
 
-For direct server deployment (Ubuntu/Debian):
+For direct server deployment:
 
 ```bash
-chmod +x scripts/deploy-server.sh
 sudo ./scripts/deploy-server.sh
 ```
-
-This will:
-- Install all system dependencies (Python, Node.js, Nginx, PostgreSQL)
-- Configure Nginx for IP-based access
-- Set up systemd services
-- Configure firewall rules
 
 ### Manual Deployment
 
@@ -331,11 +428,11 @@ REACT_APP_API_URL=http://YOUR_SERVER_IP:8000/api/v1 npm run build
 
 ### Quick Deployment
 
-| Platform           | Type          | Command              | Best For        | Access Method |
-| ------------------ | ------------- | -------------------- | --------------- | ------------- |
-| **Docker**         | Full Stack    | `./scripts/deploy.sh` | Production      | http://SERVER_IP |
-| **Server (No Docker)** | Full Stack | `sudo ./scripts/deploy-server.sh` | Production | http://SERVER_IP |
-| **GitHub Pages**   | Frontend Only | `make deploy-pages`  | Demo/Portfolio  | https://username.github.io |
+| Platform               | Type          | Command                           | Best For       | Access Method              |
+| ---------------------- | ------------- | --------------------------------- | -------------- | -------------------------- |
+| **Docker**             | Full Stack    | `./scripts/deploy.sh`             | Production     | http://SERVER_IP           |
+| **Server (No Docker)** | Full Stack    | `sudo ./scripts/deploy-server.sh` | Production     | http://SERVER_IP           |
+| **GitHub Pages**       | Frontend Only | `make deploy-pages`               | Demo/Portfolio | https://username.github.io |
 
 ### IP-Based Deployment Features
 
