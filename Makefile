@@ -90,7 +90,7 @@ test: test-backend test-frontend
 
 test-backend:
 	@echo "🧪 Running backend tests..."
-	cd backend && source venv/bin/activate && pytest
+	cd backend && source venv/bin/activate && PYTHONPATH=. pytest tests/ -v
 
 test-frontend:
 	@echo "🧪 Running frontend tests..."
