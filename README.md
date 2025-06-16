@@ -264,19 +264,49 @@ make clean          # Clean build artifacts
 
 ## 🚀 Production Deployment
 
-### Using Docker (Recommended)
+### Using Docker (Recommended) - IP-Based Access
+
+Deploy to your server using the server's IP address (no domain required):
 
 1. **Quick deployment**:
    ```bash
    chmod +x scripts/deploy.sh
    ./scripts/deploy.sh
    ```
+   
+   The script will:
+   - Automatically detect your server's IP address
+   - Configure the application for IP-based access
+   - Set up Docker containers with proper CORS settings
+   - Generate secure database credentials
 
 2. **Manual Docker deployment**:
    ```bash
-   make docker-build
-   make docker-up
+   # Set your server IP
+   export SERVER_IP=YOUR_SERVER_IP_HERE
+   
+   # Create .env file
+   echo "SERVER_IP=$SERVER_IP" > .env
+   echo "SECRET_KEY=$(openssl rand -hex 32)" >> .env
+   
+   # Deploy
+   docker-compose up -d --build
    ```
+
+### Server Deployment without Docker
+
+For direct server deployment (Ubuntu/Debian):
+
+```bash
+chmod +x scripts/deploy-server.sh
+sudo ./scripts/deploy-server.sh
+```
+
+This will:
+- Install all system dependencies (Python, Node.js, Nginx, PostgreSQL)
+- Configure Nginx for IP-based access
+- Set up systemd services
+- Configure firewall rules
 
 ### Manual Deployment
 
@@ -284,6 +314,7 @@ make clean          # Clean build artifacts
 ```bash
 cd backend
 pip install -r requirements.txt
+export ALLOWED_ORIGINS='["http://YOUR_SERVER_IP"]'
 make db-migrate
 gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 ```
@@ -292,7 +323,7 @@ gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 ```bash
 cd frontend
 npm install
-npm run build
+REACT_APP_API_URL=http://YOUR_SERVER_IP:8000/api/v1 npm run build
 # Serve the build folder with your preferred web server (nginx, apache, etc.)
 ```
 
@@ -300,18 +331,26 @@ npm run build
 
 ### Quick Deployment
 
-| Platform           | Type          | Command              | Best For        |
-| ------------------ | ------------- | -------------------- | --------------- |
-| **GitHub Pages**   | Frontend Only | `make deploy-pages`  | Demo/Portfolio  |
-| **Company Server** | Full Stack    | `make deploy-server` | Production      |
-| **Docker**         | Full Stack    | `make docker-up`     | Any Environment |
+| Platform           | Type          | Command              | Best For        | Access Method |
+| ------------------ | ------------- | -------------------- | --------------- | ------------- |
+| **Docker**         | Full Stack    | `./scripts/deploy.sh` | Production      | http://SERVER_IP |
+| **Server (No Docker)** | Full Stack | `sudo ./scripts/deploy-server.sh` | Production | http://SERVER_IP |
+| **GitHub Pages**   | Frontend Only | `make deploy-pages`  | Demo/Portfolio  | https://username.github.io |
+
+### IP-Based Deployment Features
+
+✅ **Automatic IP Detection**: Scripts automatically detect your server's public IP  
+✅ **No Domain Required**: Access via `http://YOUR_SERVER_IP`  
+✅ **CORS Configuration**: Properly configured for cross-origin requests  
+✅ **Firewall Instructions**: Clear guidance on required ports  
+✅ **SSL Optional**: Can be added later if you get a domain  
 
 ### Detailed Deployment
 
 See the [Deployment Guide](docs/deployment/README.md) for comprehensive instructions covering:
 
-- 🌐 **GitHub Pages**: Free frontend hosting
-- 🏢 **Company Servers**: Full production deployment
+- 🌐 **IP-Based Access**: No domain configuration needed
+- 🏢 **Company Servers**: Full production deployment  
 - ☁️ **Cloud Platforms**: Heroku, Vercel, Railway
 - 🐳 **Docker**: Containerized deployment
 - 🔄 **CI/CD**: Automated deployments

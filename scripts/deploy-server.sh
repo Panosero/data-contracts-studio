@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Data Contracts Studio - Server Deployment Script (No Docker)
-# This script deploys the application to a remote server without Docker
+# Data Contracts Studio - Server Deployment Script (IP-based deployment)
+# This script deploys the application to a remote server using IP address
 
 set -e
 
@@ -11,6 +11,7 @@ echo "🚀 Deploying Data Contracts Studio to server..."
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 print_status() {
@@ -25,6 +26,10 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+print_info() {
+    echo -e "${BLUE}[CONFIG]${NC} $1"
+}
+
 # Configuration
 APP_DIR="/opt/data-contracts-studio"
 SERVICE_USER="appuser"
@@ -32,6 +37,28 @@ BACKEND_PORT="8000"
 FRONTEND_PORT="3000"
 NGINX_AVAILABLE="/etc/nginx/sites-available"
 NGINX_ENABLED="/etc/nginx/sites-enabled"
+
+# Get server IP address
+get_server_ip() {
+    # Try multiple methods to get the server's public IP
+    SERVER_IP=$(curl -s ifconfig.me 2>/dev/null || curl -s icanhazip.com 2>/dev/null || curl -s ipecho.net/plain 2>/dev/null || hostname -I | awk '{print $1}')
+    
+    if [ -z "$SERVER_IP" ]; then
+        print_warning "Could not automatically detect server IP. Please enter it manually:"
+        read -p "Enter your server IP address: " SERVER_IP
+    fi
+    
+    print_info "Server IP detected/configured: $SERVER_IP"
+    
+    # Confirm with user
+    read -p "Is this correct? (y/n): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        read -p "Enter the correct server IP address: " SERVER_IP
+    fi
+    
+    export SERVER_IP
+}
 
 # Check if running as root for system operations
 check_permissions() {
@@ -112,12 +139,15 @@ deploy_backend() {
     # Install production WSGI server
     sudo -u $SERVICE_USER ./venv/bin/pip install gunicorn uvicorn[standard]
 
-    # Create environment file
+    # Create environment file with IP-based configuration
     sudo -u $SERVICE_USER tee .env >/dev/null <<EOF
 DEBUG=False
 DATABASE_URL=sqlite:///$APP_DIR/data/data_contracts.db
 SECRET_KEY=$(openssl rand -hex 32)
-ALLOWED_ORIGINS=["http://localhost", "https://your-domain.com"]
+ALLOWED_ORIGINS=["http://$SERVER_IP", "http://localhost", "http://127.0.0.1"]
+CORS_ALLOW_CREDENTIALS=true
+CORS_ALLOW_METHODS=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+CORS_ALLOW_HEADERS=["*"]
 EOF
 
     # Create data directory
@@ -138,11 +168,12 @@ deploy_frontend() {
     # Install dependencies
     sudo -u $SERVICE_USER npm ci --only=production
 
-    # Create production environment file
+    # Create production environment file with IP-based API URL
     sudo -u $SERVICE_USER tee .env.production >/dev/null <<EOF
-REACT_APP_API_URL=https://your-domain.com/api/v1
+REACT_APP_API_URL=http://$SERVER_IP:$BACKEND_PORT/api/v1
 REACT_APP_APP_NAME=Data Contracts Studio
 REACT_APP_VERSION=1.0.0
+GENERATE_SOURCEMAP=false
 EOF
 
     # Build frontend
@@ -175,20 +206,28 @@ EOF
     print_status "Supervisor configured ✓"
 }
 
-# Configure Nginx
+# Configure Nginx for IP-based deployment
 configure_nginx() {
-    print_status "Configuring Nginx..."
+    print_status "Configuring Nginx for IP-based deployment..."
 
     sudo tee $NGINX_AVAILABLE/data-contracts-studio >/dev/null <<EOF
 server {
-    listen 80;
-    server_name your-domain.com www.your-domain.com;
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    
+    # Accept requests to server IP and localhost
+    server_name $SERVER_IP localhost 127.0.0.1 _;
     
     # Security headers
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    
+    # CORS headers for API requests
+    add_header Access-Control-Allow-Origin "http://$SERVER_IP" always;
+    add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+    add_header Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization" always;
     
     # Frontend (React app)
     location / {
@@ -203,8 +242,28 @@ server {
         }
     }
     
-    # Backend API
+    # Backend API - proxy to backend server
     location /api/ {
+        proxy_pass http://127.0.0.1:$BACKEND_PORT;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        
+        # CORS preflight
+        if (\$request_method = 'OPTIONS') {
+            add_header Access-Control-Allow-Origin "http://$SERVER_IP";
+            add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS";
+            add_header Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization";
+            add_header Access-Control-Max-Age 1728000;
+            add_header Content-Type 'text/plain charset=UTF-8';
+            add_header Content-Length 0;
+            return 204;
+        }
+    }
+    
+    # Backend docs
+    location /docs {
         proxy_pass http://127.0.0.1:$BACKEND_PORT;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
@@ -212,8 +271,8 @@ server {
         proxy_set_header X-Forwarded-Proto \$scheme;
     }
     
-    # Backend docs
-    location /docs {
+    # OpenAPI JSON
+    location /openapi.json {
         proxy_pass http://127.0.0.1:$BACKEND_PORT;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
@@ -229,14 +288,17 @@ server {
 }
 EOF
 
-    # Enable site
+    # Remove default nginx site
+    sudo rm -f $NGINX_ENABLED/default
+
+    # Enable our site
     sudo ln -sf $NGINX_AVAILABLE/data-contracts-studio $NGINX_ENABLED/
 
     # Test and reload Nginx
     sudo nginx -t
     sudo systemctl reload nginx
 
-    print_status "Nginx configured ✓"
+    print_status "Nginx configured for IP access ✓"
 }
 
 # Setup SSL with Let's Encrypt (optional)
@@ -346,6 +408,9 @@ EOF
 main() {
     print_status "Starting server deployment..."
 
+    # Get server IP first
+    get_server_ip
+    
     check_permissions
     install_system_dependencies
     create_app_user
@@ -354,7 +419,6 @@ main() {
     deploy_frontend
     configure_supervisor
     configure_nginx
-    setup_ssl
     setup_log_rotation
     setup_monitoring
     create_update_script
@@ -362,9 +426,9 @@ main() {
     print_status "Deployment complete! 🎉"
     echo ""
     echo "Your application is now running:"
-    echo "  Website: http://your-domain.com"
-    echo "  API: http://your-domain.com/api/v1"
-    echo "  Docs: http://your-domain.com/docs"
+    echo "  Website: http://$SERVER_IP"
+    echo "  API: http://$SERVER_IP/api/v1"
+    echo "  Docs: http://$SERVER_IP/docs"
     echo ""
     echo "To update the application:"
     echo "  sudo -u $SERVICE_USER $APP_DIR/update.sh"
@@ -372,6 +436,9 @@ main() {
     echo "To check status:"
     echo "  sudo supervisorctl status"
     echo "  sudo systemctl status nginx"
+    echo ""
+    print_info "Access your application at: http://$SERVER_IP"
+    print_warning "Make sure port 80 is open in your server's firewall"
 }
 
 # Run deployment

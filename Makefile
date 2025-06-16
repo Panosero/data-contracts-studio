@@ -1,4 +1,4 @@
-.PHONY: help install dev build test clean docker-build docker-up docker-down backend-dev frontend-dev
+.PHONY: help install dev build test clean docker-build docker-up docker-down backend-dev frontend-dev deploy deploy-pages deploy-server
 
 # Default target
 help:
@@ -37,9 +37,9 @@ help:
 	@echo "  docker-dev     - Start development environment with Docker"
 	@echo ""
 	@echo "CI/CD & Deployment:"
-	@echo "  ci-test        - Run CI tests (linting + unit tests)"
+	@echo "  deploy         - Deploy with Docker (IP-based, recommended)"
 	@echo "  deploy-pages   - Deploy frontend to GitHub Pages"
-	@echo "  deploy-server   - Deploy backend to server"
+	@echo "  deploy-server  - Deploy to server without Docker"
 	@echo "  setup-ci       - Set up CI/CD configuration"
 
 # Installation
@@ -169,15 +169,20 @@ ci-test:
 	make lint
 	@echo "✅ All CI tests passed"
 
+deploy:
+	@echo "🚀 Deploying with Docker (IP-based)..."
+	chmod +x scripts/deploy.sh
+	./scripts/deploy.sh
+
 deploy-pages:
 	@echo "📦 Deploying to GitHub Pages..."
 	chmod +x scripts/deploy-github-pages.sh
 	./scripts/deploy-github-pages.sh
 
 deploy-server:
-	@echo "🚀 Deploying to server..."
+	@echo "🚀 Deploying to server without Docker..."
 	chmod +x scripts/deploy-server.sh
-	./scripts/deploy-server.sh
+	sudo ./scripts/deploy-server.sh
 
 setup-ci:
 	@echo "⚙️ Setting up CI/CD..."
