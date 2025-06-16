@@ -61,8 +61,10 @@ class FieldSchema(BaseModel):
             raise ValueError("Field name must start with a letter, underscore, or dollar sign")
 
         # Define truly problematic characters that should be rejected
-        # Allow spaces and most special characters that are commonly used in field names
+        # Allow most special characters that are commonly used in field names
+        # but reject spaces and characters that cause parsing issues
         problematic_chars = {
+            " ",  # spaces should be rejected to encourage underscore usage
             "\t",
             "\n",
             "\r",

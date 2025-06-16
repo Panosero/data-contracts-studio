@@ -26,8 +26,10 @@ class AutoGenerationService:
         original_name = name.strip()
 
         # Replace only truly problematic characters
-        # Keep spaces and most special characters that are commonly used in data field names
+        # Keep most special characters that are commonly used in data field names
+        # but replace spaces for better compatibility
         problematic_chars = {
+            " ",  # spaces should be replaced with underscores
             "\t",
             "\n",
             "\r",

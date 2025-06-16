@@ -124,3 +124,6 @@ temp/
 test-results/
 playwright-report/
 playwright/.cache/
+backend/.coverage
+.gitignore
+backend/coverage.xml
