@@ -1,4 +1,4 @@
-__version__ = "0.0.1"
+__version__ = "0.0.3"
 __title__ = "Data Contracts Studio"
 __description__ = "A modern, scalable data contract management platform"
 __author__ = "Pnagiotis Erodotou"

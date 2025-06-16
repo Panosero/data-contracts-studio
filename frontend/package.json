@@ -1,6 +1,6 @@
 {
     "name": "data-contracts-studio-frontend",
-    "version": "0.0.1",
+    "version": "0.0.3",
     "private": true,
     "dependencies": {
         "@testing-library/jest-dom": "^6.1.4",
