@@ -2,6 +2,7 @@
 
 This module provides services for automatically generating data contract fields
 from various data sources including database schemas, API responses, and CSV files.
+Following PEP 8, PEP 20 (Zen of Python), and PEP 3107 type annotations.
 """
 
 import json
@@ -363,6 +364,41 @@ class AutoGenerationService:
                             description=f"Field of type {field_type} (original key: {key})",
                         )
                     )
+
+        elif isinstance(data, list) and data:
+            # Handle top-level arrays
+            if isinstance(data[0], dict):
+                # Array of objects - merge all fields from all objects to get complete schema
+                all_keys = set()
+                for item in data:
+                    if isinstance(item, dict):
+                        all_keys.update(item.keys())
+
+                # Create a merged object representing the schema
+                merged_object = {}
+                for key in all_keys:
+                    # Find the first non-null value for this key to determine type
+                    for item in data:
+                        if isinstance(item, dict) and key in item and item[key] is not None:
+                            merged_object[key] = item[key]
+                            break
+                    else:
+                        # If all values are null, use None
+                        merged_object[key] = None
+
+                # Parse the merged object
+                fields.extend(AutoGenerationService._parse_json_structure(merged_object, prefix))
+            else:
+                # Array of primitives - create a single array field
+                array_type = AutoGenerationService._get_json_type(data[0])
+                fields.append(
+                    FieldSchema(
+                        name=prefix or "items",
+                        type="array",
+                        required=True,
+                        description=f"Array of {array_type} values",
+                    )
+                )
 
         return fields
 
