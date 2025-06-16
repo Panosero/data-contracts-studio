@@ -1,0 +1,5 @@
+__version__ = "0.0.1"
+__title__ = "Data Contracts Studio"
+__description__ = "A modern, scalable data contract management platform"
+__author__ = "Pnagiotis Erodotou"
+__license__ = "MIT"

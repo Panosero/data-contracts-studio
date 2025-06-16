@@ -1,4 +1,4 @@
-.PHONY: help install dev build test clean docker-build docker-up docker-down backend-dev frontend-dev deploy deploy-pages deploy-server
+.PHONY: help install dev build test clean docker-build docker-up docker-down backend-dev frontend-dev deploy deploy-pages deploy-server version release
 
 # Default target
 help:
@@ -35,6 +35,10 @@ help:
 	@echo "  docker-up      - Start application with Docker Compose"
 	@echo "  docker-down    - Stop Docker Compose services"
 	@echo "  docker-dev     - Start development environment with Docker"
+	@echo ""
+	@echo "📋 Versioning & Release:"
+	@echo "  version        - Show current version"
+	@echo "  release        - Create a new release (usage: make release VERSION=0.0.2)"
 	@echo ""
 	@echo "CI/CD & Deployment:"
 	@echo "  deploy         - Simple deployment using .env file"
@@ -214,3 +218,28 @@ check-deps:
 	else \
 		echo "⚠️  Database: Not initialized (will be created automatically)"; \
 	fi
+
+# Version and Release Management
+version:
+	@echo "📋 Data Contracts Studio Version Information"
+	@echo "============================================="
+	@echo "Current Version: $(shell cat VERSION)"
+	@echo ""
+	@echo "Component Versions:"
+	@echo "- Root Package:     $(shell grep '"version"' package.json | head -1 | cut -d'"' -f4)"
+	@echo "- Frontend:         $(shell grep '"version"' frontend/package.json | head -1 | cut -d'"' -f4)"
+	@echo "- Backend API:      $(shell grep 'app_version:' backend/app/core/config.py | cut -d'"' -f2)"
+	@echo ""
+	@echo "Git Information:"
+	@echo "- Branch:           $(shell git branch --show-current 2>/dev/null || echo 'Not a git repository')"
+	@echo "- Last Commit:      $(shell git log -1 --pretty=format:'%h - %s (%cr)' 2>/dev/null || echo 'No git history')"
+	@echo "- Tags:             $(shell git tag --sort=-version:refname | head -3 | tr '\n' ' ' 2>/dev/null || echo 'No tags')"
+
+release:
+	@if [ -z "$(VERSION)" ]; then \
+		echo "❌ VERSION is required. Usage: make release VERSION=0.0.2"; \
+		exit 1; \
+	fi
+	@echo "🚀 Creating release $(VERSION)..."
+	chmod +x scripts/release.sh
+	./scripts/release.sh $(VERSION)

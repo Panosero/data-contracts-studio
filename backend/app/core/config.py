@@ -6,7 +6,7 @@ class Settings(BaseSettings):
 
     # App
     app_name: str = "Data Contracts Studio"
-    app_version: str = "1.0.0"
+    app_version: str = "0.0.1"
     debug: bool = False
 
     # Database

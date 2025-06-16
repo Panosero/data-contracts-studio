@@ -1,6 +1,7 @@
 # Data Contracts Studio
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/Version-0.0.1-blue.svg)](https://github.com/yourusername/data-contracts-studio/releases)
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![React](https://img.shields.io/badge/React-18.0+-61DAFB.svg)](https://reactjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688.svg)](https://fastapi.tiangolo.com/)
@@ -12,10 +13,8 @@ A modern, scalable data contract management platform built with React and FastAP
 
 ## 📸 Screenshots
 
-> **Note**: Screenshots will be added after running the application. See [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md) for instructions.
-
 ### Main Dashboard
-<!-- ![Dashboard](docs/images/dashboard.png) -->
+
 *Contract management dashboard with search and filtering capabilities*
 
 ### Auto-Generate Contracts
