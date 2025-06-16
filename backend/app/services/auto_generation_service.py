@@ -8,7 +8,7 @@ class AutoGenerationService:
     """Service for auto-generating contracts from various sources."""
 
     @staticmethod
-    def _sanitize_field_name(name: str) -> str:
+    def sanitize_field_name(name: str) -> str:
         """Sanitize field name to make it valid according to schema rules.
 
         Only replaces truly problematic characters while preserving
@@ -183,7 +183,7 @@ class AutoGenerationService:
 
             field_type = AutoGenerationService._infer_type_from_samples(sample_values)
             # Sanitize the field name to ensure it's valid
-            sanitized_name = AutoGenerationService._sanitize_field_name(header)
+            sanitized_name = AutoGenerationService.sanitize_field_name(header)
 
             fields.append(
                 FieldSchema(
@@ -254,7 +254,7 @@ class AutoGenerationService:
             required = True
 
         return FieldSchema(
-            name=AutoGenerationService._sanitize_field_name(field_name),
+            name=AutoGenerationService.sanitize_field_name(field_name),
             type=field_type,
             required=required,
             description=f"Generated from SQL field: {field_name}",
@@ -268,7 +268,7 @@ class AutoGenerationService:
         if isinstance(data, dict):
             for key, value in data.items():
                 # Sanitize the field name
-                sanitized_key = AutoGenerationService._sanitize_field_name(key)
+                sanitized_key = AutoGenerationService.sanitize_field_name(key)
                 field_name = f"{prefix}.{sanitized_key}" if prefix else sanitized_key
                 field_type = AutoGenerationService._get_json_type(value)
 

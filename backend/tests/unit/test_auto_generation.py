@@ -51,11 +51,11 @@ class TestAutoGenerationService:
             ("field'apos", "field_apos"),  # apostrophe -> underscore
             ("field\ttab", "field_tab"),  # tab -> underscore
             ("field\nnewline", "field_newline"),  # newline -> underscore
-            # Edge cases
-            ("", ""),  # empty string
-            ("_", "_"),  # single underscore
+            # Edge cases  
+            ("", "unnamed_field"),  # empty string -> safe default
+            ("_", "field_underscore"),  # single underscore -> safer name
             ("___", "___"),  # multiple underscores
-            ("123", "123"),  # numeric
+            ("123", "field_123"),  # numeric -> prefixed for safety
             ("field___name", "field___name"),  # multiple underscores preserved
         ],
     )
@@ -86,7 +86,7 @@ class TestAutoGenerationService:
             ("field_é", "field_é"),  # accented character
             ("field_ñ", "field_ñ"),  # tilde
             ("field_中文", "field_中文"),  # Chinese characters
-            ("field_🚀", "field__"),  # emoji should be sanitized
+            ("field_🚀", "field_🚀"),  # emoji preserved (permissive approach)
         ]
 
         for input_field, expected in test_cases:

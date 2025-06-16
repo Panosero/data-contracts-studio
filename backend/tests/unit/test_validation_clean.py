@@ -48,7 +48,7 @@ class TestBasicFieldValidation:
     @pytest.mark.unit
     def test_field_schema_types(self) -> None:
         """Test field schema with different data types."""
-        valid_types = ["string", "integer", "number", "boolean", "array", "object"]
+        valid_types = ["string", "integer", "number", "boolean", "array", "object", "date", "datetime", "time", "binary", "null"]
 
         for field_type in valid_types:
             field = FieldSchema(name="test_field", type=field_type)

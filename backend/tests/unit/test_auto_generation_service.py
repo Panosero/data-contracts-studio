@@ -56,7 +56,7 @@ def test_enhanced_auto_generation():
     failed = 0
 
     for input_name, expected in test_cases:
-        result = AutoGenerationService._sanitize_field_name(input_name)
+        result = AutoGenerationService.sanitize_field_name(input_name)
 
         if result == expected:
             print(f"✓ PASS: '{input_name}' -> '{result}'")

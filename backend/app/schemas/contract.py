@@ -21,13 +21,18 @@ class FieldSchema(BaseModel):
         required: Whether the field is mandatory.
         description: Optional human-readable description.
         constraints: Additional validation rules and constraints.
+        default_value: Default value for the field if not provided.
     """
 
     name: str = Field(..., description="Field name")
-    type: str = Field(..., min_length=1, description="Data type")
-    required: bool = Field(default=True, description="Whether field is required")
+    type: Literal[
+        "string", "integer", "number", "boolean", "array", "object", 
+        "date", "datetime", "time", "binary", "null"
+    ] = Field(..., description="Data type")
+    required: bool = Field(default=False, description="Whether field is required")
     description: Optional[str] = Field(None, max_length=500, description="Field description")
     constraints: Optional[Dict[str, Any]] = Field(None, description="Validation constraints")
+    default_value: Optional[Any] = Field(None, description="Default value for the field")
 
     @field_validator("name")
     @classmethod
@@ -56,9 +61,9 @@ class FieldSchema(BaseModel):
         if len(name) > 100:
             raise ValueError("Field name cannot exceed 100 characters")
 
-        # Must start with letter, underscore, or dollar sign (common in many systems)
-        if not (name[0].isalpha() or name[0] in ["_", "$"]):
-            raise ValueError("Field name must start with a letter, underscore, or dollar sign")
+        # Must start with letter, underscore, dollar sign, or be purely numeric
+        if not (name[0].isalpha() or name[0] in ["_", "$"] or name.isdigit()):
+            raise ValueError("Field name must start with a letter, underscore, dollar sign, or be purely numeric")
 
         # Define truly problematic characters that should be rejected
         # Allow most special characters that are commonly used in field names
