@@ -27,7 +27,7 @@ class Settings(BaseSettings):
 
     # Application metadata
     app_name: str = "Data Contracts Studio"
-    app_version: str = "0.0.5"
+    app_version: str = "0.0.6"
     debug: bool = False
 
     # Database configuration
