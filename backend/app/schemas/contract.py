@@ -26,8 +26,17 @@ class FieldSchema(BaseModel):
 
     name: str = Field(..., description="Field name")
     type: Literal[
-        "string", "integer", "number", "boolean", "array", "object", 
-        "date", "datetime", "time", "binary", "null"
+        "string",
+        "integer",
+        "number",
+        "boolean",
+        "array",
+        "object",
+        "date",
+        "datetime",
+        "time",
+        "binary",
+        "null",
     ] = Field(..., description="Data type")
     required: bool = Field(default=False, description="Whether field is required")
     description: Optional[str] = Field(None, max_length=500, description="Field description")
@@ -63,7 +72,9 @@ class FieldSchema(BaseModel):
 
         # Must start with letter, underscore, dollar sign, or be purely numeric
         if not (name[0].isalpha() or name[0] in ["_", "$"] or name.isdigit()):
-            raise ValueError("Field name must start with a letter, underscore, dollar sign, or be purely numeric")
+            raise ValueError(
+                "Field name must start with a letter, underscore, dollar sign, or be purely numeric"
+            )
 
         # Define truly problematic characters that should be rejected
         # Allow most special characters that are commonly used in field names

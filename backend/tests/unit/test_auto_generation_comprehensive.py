@@ -7,7 +7,6 @@ to meet the 80% coverage requirement.
 import json
 import pytest
 from app.services.auto_generation_service import AutoGenerationService
-from app.schemas.contract import FieldSchema
 
 
 class TestAutoGenerationServiceComprehensive:
@@ -24,16 +23,16 @@ class TestAutoGenerationServiceComprehensive:
             created_at TIMESTAMP
         );
         """
-        
+
         result = AutoGenerationService.generate_from_database_schema(schema_sql, "users")
-        
+
         assert isinstance(result, list)
         assert len(result) > 0
-        
+
         # Check that field names are present
         field_names = [field.name for field in result]
         expected_fields = ["id", "name", "email", "age", "created_at"]
-        
+
         for expected_field in expected_fields:
             assert expected_field in field_names or any(expected_field in name for name in field_names)
 
@@ -52,27 +51,29 @@ class TestAutoGenerationServiceComprehensive:
             product_name VARCHAR(100)
         );
         """
-        
+
         result = AutoGenerationService.generate_from_database_schema(schema_sql, "products")
         assert isinstance(result, list)
 
     def test_generate_from_api_response_basic(self) -> None:
         """Test API response field generation."""
-        api_response = json.dumps({
-            "user_id": 123,
-            "username": "john_doe",
-            "email": "john@example.com",
-            "is_active": True,
-            "balance": 99.99,
-            "tags": ["user", "premium"],
-            "metadata": {"role": "admin", "department": "IT"}
-        })
-        
+        api_response = json.dumps(
+            {
+                "user_id": 123,
+                "username": "john_doe",
+                "email": "john@example.com",
+                "is_active": True,
+                "balance": 99.99,
+                "tags": ["user", "premium"],
+                "metadata": {"role": "admin", "department": "IT"},
+            }
+        )
+
         result = AutoGenerationService.generate_from_api_response(api_response)
-        
+
         assert isinstance(result, list)
         assert len(result) > 0
-        
+
         field_names = [field.name for field in result]
         assert "user_id" in field_names
         assert "username" in field_names
@@ -85,11 +86,8 @@ class TestAutoGenerationServiceComprehensive:
 
     def test_generate_from_api_response_array(self) -> None:
         """Test API response generation with JSON array."""
-        api_response = json.dumps([
-            {"id": 1, "name": "Alice"},
-            {"id": 2, "name": "Bob", "age": 30}
-        ])
-        
+        api_response = json.dumps([{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob", "age": 30}])
+
         result = AutoGenerationService.generate_from_api_response(api_response)
         assert isinstance(result, list)
 
@@ -99,12 +97,12 @@ class TestAutoGenerationServiceComprehensive:
 1,John Doe,john@example.com,25
 2,Jane Smith,jane@example.com,30
 3,Bob Johnson,bob@example.com,35"""
-        
+
         result = AutoGenerationService.generate_from_csv_data(csv_data)
-        
+
         assert isinstance(result, list)
         assert len(result) == 4  # id, name, email, age
-        
+
         field_names = [field.name for field in result]
         assert "id" in field_names
         assert "name" in field_names
@@ -118,23 +116,22 @@ class TestAutoGenerationServiceComprehensive:
 
     def test_generate_from_csv_data_json_array(self) -> None:
         """Test CSV generation with JSON array input."""
-        json_array = json.dumps([
-            {"product_id": 1, "product_name": "Widget", "price": 19.99},
-            {"product_id": 2, "product_name": "Gadget", "price": 29.99}
-        ])
-        
+        json_array = json.dumps(
+            [
+                {"product_id": 1, "product_name": "Widget", "price": 19.99},
+                {"product_id": 2, "product_name": "Gadget", "price": 29.99},
+            ]
+        )
+
         result = AutoGenerationService.generate_from_csv_data(json_array)
         assert isinstance(result, list)
 
     def test_generate_from_csv_data_json_object(self) -> None:
         """Test CSV generation with single JSON object."""
-        json_object = json.dumps({
-            "order_id": 12345,
-            "customer_name": "Alice Johnson",
-            "total": 155.50,
-            "status": "completed"
-        })
-        
+        json_object = json.dumps(
+            {"order_id": 12345, "customer_name": "Alice Johnson", "total": 155.50, "status": "completed"}
+        )
+
         result = AutoGenerationService.generate_from_csv_data(json_object)
         assert isinstance(result, list)
 
@@ -143,7 +140,7 @@ class TestAutoGenerationServiceComprehensive:
         csv_data = '''product_id,"product name","description with, comma"
 1,"Super Widget","A great widget, very useful"
 2,"Mega Gadget","Another gadget, super cool"'''
-        
+
         result = AutoGenerationService.generate_from_csv_data(csv_data)
         assert isinstance(result, list)
         assert len(result) >= 3
@@ -153,7 +150,7 @@ class TestAutoGenerationServiceComprehensive:
         csv_data = """id,,name,
 1,,John,
 2,,Jane,"""
-        
+
         result = AutoGenerationService.generate_from_csv_data(csv_data)
         # Should skip empty headers
         field_names = [field.name for field in result]
@@ -223,7 +220,7 @@ class TestAutoGenerationServiceComprehensive:
         # Single word should return None
         result = AutoGenerationService._parse_sql_field("invalid")
         assert result is None
-        
+
         # Valid format but unknown type should default to string
         result = AutoGenerationService._parse_sql_field("invalid_field UNKNOWN_TYPE")
         assert result is not None
@@ -232,28 +229,16 @@ class TestAutoGenerationServiceComprehensive:
 
     def test_parse_json_structure_nested(self) -> None:
         """Test parsing nested JSON structures."""
-        data = {
-            "user": {
-                "id": 123,
-                "profile": {
-                    "name": "John",
-                    "age": 30
-                }
-            },
-            "tags": ["user", "active"]
-        }
-        
+        data = {"user": {"id": 123, "profile": {"name": "John", "age": 30}}, "tags": ["user", "active"]}
+
         result = AutoGenerationService._parse_json_structure(data)
         assert isinstance(result, list)
         assert len(result) > 0
 
     def test_parse_json_structure_array(self) -> None:
         """Test parsing JSON arrays."""
-        data = [
-            {"id": 1, "name": "Alice"},
-            {"id": 2, "name": "Bob", "extra": "field"}
-        ]
-        
+        data = [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob", "extra": "field"}]
+
         result = AutoGenerationService._parse_json_structure(data)
         assert isinstance(result, list)
 
@@ -264,13 +249,13 @@ class TestAutoGenerationServiceComprehensive:
             "int_field": 42,
             "float_field": 3.14,
             "bool_field": True,
-            "null_field": None
+            "null_field": None,
         }
-        
+
         result = AutoGenerationService._parse_json_structure(data)
         assert isinstance(result, list)
         assert len(result) == 5
-        
+
         # Check that different types are correctly inferred
         type_mapping = {field.name: field.type for field in result}
         assert type_mapping.get("string_field") == "string"

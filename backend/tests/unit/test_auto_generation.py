@@ -51,7 +51,7 @@ class TestAutoGenerationService:
             ("field'apos", "field_apos"),  # apostrophe -> underscore
             ("field\ttab", "field_tab"),  # tab -> underscore
             ("field\nnewline", "field_newline"),  # newline -> underscore
-            # Edge cases  
+            # Edge cases
             ("", "unnamed_field"),  # empty string -> safe default
             ("_", "field_underscore"),  # single underscore -> safer name
             ("___", "___"),  # multiple underscores
