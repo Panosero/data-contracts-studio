@@ -7,6 +7,8 @@ import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import { Modal } from '../components/common/Modal';
 import { ThemeToggle } from '../components/common/ThemeToggle';
+import { VersionBadge } from '../components/common/VersionBadge';
+import { Footer } from '../components/common/Footer';
 import { DataContract, DataContractCreate, AutoGenerateRequest } from '../types/contract';
 
 export const HomePage: React.FC = () => {
@@ -135,11 +137,14 @@ export const HomePage: React.FC = () => {
       <div className="container mx-auto px-6 py-12">
         {/* Header */}
         <div className="text-center mb-16 fade-in">
-          <h1 className="text-7xl font-black theme-text-primary mb-6 tracking-tight">
-            <span className="bg-gradient-to-r from-slate-200 via-blue-300 to-slate-200 bg-clip-text text-transparent">
-              Data Contract Studio
-            </span>
-          </h1>
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <h1 className="text-7xl font-black theme-text-primary tracking-tight">
+              <span className="bg-gradient-to-r from-slate-200 via-blue-300 to-slate-200 bg-clip-text text-transparent">
+                Data Contract Studio
+              </span>
+            </h1>
+            <VersionBadge variant="full" position="inline" />
+          </div>
           <p className="text-xl theme-text-secondary max-w-3xl mx-auto leading-relaxed font-light">
             Define, manage, and validate data schemas and contracts
           </p>
@@ -453,7 +458,13 @@ export const HomePage: React.FC = () => {
           onGenerate={handleAutoGenerate}
           isLoading={autoGenerateFields.isLoading}
         />
+
+        {/* Footer */}
+        <Footer />
       </div>
+
+      {/* Version Badge - Fixed position */}
+      <VersionBadge variant="detailed" showBackendVersion={true} />
     </div>
   );
 };

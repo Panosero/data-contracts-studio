@@ -1,5 +1,11 @@
 FROM python:3.11-slim
 
+# Version information
+ARG VERSION=0.0.1
+LABEL version=${VERSION}
+LABEL description="Data Contracts Studio Backend API"
+LABEL maintainer="Data Contracts Studio Team"
+
 WORKDIR /app
 
 # Install system dependencies

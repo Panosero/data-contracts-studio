@@ -1,5 +1,11 @@
 FROM node:18-alpine AS build
 
+# Version information
+ARG VERSION=0.0.1
+LABEL version=${VERSION}
+LABEL description="Data Contracts Studio Frontend"
+LABEL maintainer="Data Contracts Studio Team"
+
 WORKDIR /app
 
 # Copy package files

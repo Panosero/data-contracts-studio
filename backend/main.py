@@ -36,3 +36,15 @@ async def root():
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "service": settings.app_name}
+
+
+@app.get("/version")
+async def get_version():
+    """Get application version information."""
+    return {
+        "version": settings.app_version,
+        "name": settings.app_name,
+        "build_date": "2025-06-16",
+        "environment": "production" if not settings.debug else "development",
+        "api_version": "v1"
+    }
