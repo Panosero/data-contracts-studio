@@ -16,13 +16,13 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseClasses = 'font-semibold rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 theme-shadow-sm hover:theme-shadow-md disabled:opacity-50 disabled:cursor-not-allowed scale-in';
+  const baseClasses = 'font-semibold rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variantClasses = {
-    primary: 'theme-accent-primary theme-text-inverse hover:opacity-90 focus:ring-blue-500',
-    secondary: 'theme-bg-secondary theme-text-primary hover:theme-bg-tertiary focus:ring-gray-500 theme-border-primary border',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
-    success: 'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500',
+    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 focus:ring-offset-gray-900',
+    secondary: 'bg-gray-700 text-gray-100 hover:bg-gray-600 focus:ring-gray-500 focus:ring-offset-gray-900 border border-gray-600',
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 focus:ring-offset-gray-900',
+    success: 'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500 focus:ring-offset-gray-900',
   };
   
   const sizeClasses = {

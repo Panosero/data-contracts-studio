@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export type Theme = 'light' | 'dark' | 'salmon';
+export type Theme = 'dark'; // Only dark mode for now
 
 interface ThemeContextType {
   theme: Theme;
@@ -23,21 +23,16 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('theme') as Theme;
-    return saved || 'dark'; // Changed default from 'light' to 'dark'
-  });
+  const [theme, setTheme] = useState<Theme>('dark'); // Always dark mode
 
   useEffect(() => {
-    localStorage.setItem('theme', theme);
-    document.documentElement.className = theme;
-  }, [theme]);
+    // Always apply dark theme
+    document.documentElement.className = 'dark';
+  }, []);
 
   const toggleTheme = () => {
-    const themes: Theme[] = ['light', 'dark', 'salmon'];
-    const currentIndex = themes.indexOf(theme);
-    const nextIndex = (currentIndex + 1) % themes.length;
-    setTheme(themes[nextIndex]);
+    // Show coming soon notice instead of switching themes
+    alert('🎨 More themes coming soon!\n\nWe\'re working on Light Mode and Salmon Mode.\nStay tuned for updates!');
   };
 
   return (

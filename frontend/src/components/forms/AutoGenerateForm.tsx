@@ -87,7 +87,7 @@ export const AutoGenerateForm: React.FC<AutoGenerateFormProps> = ({
           <div className="grid gap-4">
             <button
               type="button"
-              className="group w-full p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 salmon:from-orange-50 salmon:to-red-50 border-2 border-blue-200 dark:border-blue-700/50 salmon:border-orange-200 rounded-2xl hover:border-blue-300 dark:hover:border-blue-600 salmon:hover:border-orange-300 transition-all duration-200 hover:shadow-lg text-left"
+              className="group w-full p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 salmon:from-red-50 salmon:to-pink-50 border-2 border-blue-200 dark:border-blue-700/50 salmon:border-red-200 rounded-2xl hover:border-blue-300 dark:hover:border-blue-600 salmon:hover:border-red-300 transition-all duration-200 hover:shadow-lg text-left"
               onClick={() => setSourceType('database')}
             >
               <div className="flex items-start gap-4">
@@ -117,7 +117,7 @@ export const AutoGenerateForm: React.FC<AutoGenerateFormProps> = ({
 
             <button
               type="button"
-              className="group w-full p-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 salmon:from-orange-50 salmon:to-yellow-50 border-2 border-green-200 dark:border-green-700/50 salmon:border-orange-200 rounded-2xl hover:border-green-300 dark:hover:border-green-600 salmon:hover:border-orange-300 transition-all duration-200 hover:shadow-lg text-left"
+              className="group w-full p-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 salmon:from-red-50 salmon:to-rose-50 border-2 border-green-200 dark:border-green-700/50 salmon:border-red-200 rounded-2xl hover:border-green-300 dark:hover:border-green-600 salmon:hover:border-red-300 transition-all duration-200 hover:shadow-lg text-left"
               onClick={() => setSourceType('api')}
             >
               <div className="flex items-start gap-4">
@@ -147,7 +147,7 @@ export const AutoGenerateForm: React.FC<AutoGenerateFormProps> = ({
 
             <button
               type="button"
-              className="group w-full p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 salmon:from-orange-50 salmon:to-red-50 border-2 border-purple-200 dark:border-purple-700/50 salmon:border-orange-200 rounded-2xl hover:border-purple-300 dark:hover:border-purple-600 salmon:hover:border-orange-300 transition-all duration-200 hover:shadow-lg text-left"
+              className="group w-full p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 salmon:from-red-50 salmon:to-red-100 border-2 border-purple-200 dark:border-purple-700/50 salmon:border-red-200 rounded-2xl hover:border-purple-300 dark:hover:border-purple-600 salmon:hover:border-red-300 transition-all duration-200 hover:shadow-lg text-left"
               onClick={() => setSourceType('file')}
             >
               <div className="flex items-start gap-4">

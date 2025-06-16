@@ -136,15 +136,15 @@ export const HomePage: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-16 fade-in">
           <h1 className="text-7xl font-black theme-text-primary mb-6 tracking-tight">
-            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-slate-200 via-blue-300 to-slate-200 bg-clip-text text-transparent">
               Data Contract Studio
             </span>
           </h1>
           <p className="text-xl theme-text-secondary max-w-3xl mx-auto leading-relaxed font-light">
-            The modern platform for creating, managing, and auto-generating data contracts with elegance and precision
+            Define, manage, and validate data schemas and contracts
           </p>
           <div className="mt-8 flex justify-center">
-            <div className="h-1 w-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+            <div className="h-1 w-24 bg-gradient-to-r from-slate-400 to-blue-400 rounded-full"></div>
           </div>
         </div>
 
@@ -180,13 +180,13 @@ export const HomePage: React.FC = () => {
                     placeholder="Search contracts..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-12 w-72 bg-white/80 dark:bg-gray-800/90 salmon:bg-orange-50/80 backdrop-blur-sm border-white/40 dark:border-gray-600/50 salmon:border-orange-200/60"
+                    className="pl-12 w-72 bg-white/90 dark:bg-gray-800/90 salmon:bg-white/90 backdrop-blur-sm border-white/50 dark:border-gray-600/50 salmon:border-red-200/70"
                   />
                 </div>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="px-6 py-3 bg-white/80 dark:bg-gray-800/90 salmon:bg-orange-50/80 backdrop-blur-sm text-gray-900 dark:text-gray-100 salmon:text-orange-900 border border-white/40 dark:border-gray-600/50 salmon:border-orange-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 font-medium"
+                  className="px-6 py-3 bg-white/90 dark:bg-gray-800/90 salmon:bg-white/90 backdrop-blur-sm text-gray-900 dark:text-gray-100 salmon:text-gray-900 border border-white/50 dark:border-gray-600/50 salmon:border-red-200/70 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 salmon:focus:ring-red-500/20 transition-all duration-200 font-medium"
                 >
                   <option value="">All Status</option>
                   <option value="active">Active</option>
@@ -274,31 +274,81 @@ export const HomePage: React.FC = () => {
             size="lg"
           >
             <div className="space-y-8">
+              {/* JSON Contract Preview */}
+              <div className="bg-gray-900 rounded-2xl p-6 border border-gray-700">
+                <div className="flex items-center gap-3 mb-4">
+                  <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                  </svg>
+                  <h3 className="text-lg font-bold text-gray-100">JSON Contract</h3>
+                  <button
+                    onClick={() => {
+                      const contractJson = JSON.stringify({
+                        name: selectedContract.name,
+                        version: selectedContract.version,
+                        status: selectedContract.status,
+                        created_at: selectedContract.created_at,
+                        fields: selectedContract.fields
+                      }, null, 2);
+                      navigator.clipboard.writeText(contractJson);
+                      showNotification('Contract JSON copied to clipboard!');
+                    }}
+                    className="ml-auto px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Copy
+                  </button>
+                </div>
+                <div className="bg-gray-950 rounded-xl p-4 max-h-80 overflow-y-auto border border-gray-800">
+                  <pre className="text-sm text-gray-300 font-mono leading-relaxed">
+                    <code>
+{`{
+  "name": "${selectedContract.name}",
+  "version": "${selectedContract.version}",
+  "status": "${selectedContract.status}",
+  "created_at": "${selectedContract.created_at}",
+  "fields": [`}
+{selectedContract.fields.map((field, index) => (
+`    {
+      "name": "${field.name}",
+      "type": "${field.type}",
+      "required": ${field.required}
+    }${index < selectedContract.fields.length - 1 ? ',' : ''}`
+)).join('\n')}
+{`  ]
+}`}
+                    </code>
+                  </pre>
+                </div>
+              </div>
+
               {/* Contract Details */}
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="block text-sm font-bold theme-text-primary">Name</label>
-                  <div className="px-4 py-3 theme-bg-secondary rounded-xl font-medium">{selectedContract.name}</div>
+                  <label className="block text-sm font-bold text-gray-200">Name</label>
+                  <div className="px-4 py-3 bg-gray-800 text-gray-100 rounded-xl font-medium border border-gray-700">{selectedContract.name}</div>
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-sm font-bold theme-text-primary">Version</label>
-                  <div className="px-4 py-3 theme-bg-secondary rounded-xl font-medium">{selectedContract.version}</div>
+                  <label className="block text-sm font-bold text-gray-200">Version</label>
+                  <div className="px-4 py-3 bg-gray-800 text-gray-100 rounded-xl font-medium border border-gray-700">{selectedContract.version}</div>
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-sm font-bold theme-text-primary">Status</label>
-                  <div className="px-4 py-3 theme-bg-secondary rounded-xl">
+                  <label className="block text-sm font-bold text-gray-200">Status</label>
+                  <div className="px-4 py-3 bg-gray-800 rounded-xl border border-gray-700">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                      selectedContract.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-                      selectedContract.status === 'inactive' ? 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400' :
-                      'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                      selectedContract.status === 'active' ? 'bg-green-900/30 text-green-400' :
+                      selectedContract.status === 'inactive' ? 'bg-gray-800/30 text-gray-400' :
+                      'bg-red-900/30 text-red-400'
                     }`}>
                       {selectedContract.status.toUpperCase()}
                     </span>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-sm font-bold theme-text-primary">Created</label>
-                  <div className="px-4 py-3 theme-bg-secondary rounded-xl font-medium">
+                  <label className="block text-sm font-bold text-gray-200">Created</label>
+                  <div className="px-4 py-3 bg-gray-800 text-gray-100 rounded-xl font-medium border border-gray-700">
                     {new Date(selectedContract.created_at).toLocaleDateString()}
                   </div>
                 </div>
@@ -307,38 +357,39 @@ export const HomePage: React.FC = () => {
               {/* Fields */}
               <div>
                 <div className="flex items-center gap-3 mb-6">
-                  <svg className="w-6 h-6 theme-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  <h3 className="text-lg font-bold theme-text-primary">
+                  <h3 className="text-lg font-bold text-gray-100">
                     Fields ({selectedContract.fields.length})
                   </h3>
                 </div>
-                <div className="space-y-4 max-h-96 overflow-y-auto">{selectedContract.fields.map((field, index) => (
-                    <div key={index} className="theme-bg-secondary rounded-xl p-6 border theme-border-primary">
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {selectedContract.fields.map((field, index) => (
+                    <div key={index} className="bg-gray-800 rounded-xl p-6 border border-gray-700">
                       <div className="grid grid-cols-3 gap-6">
                         <div>
-                          <div className="text-sm font-bold theme-text-primary mb-1">Name</div>
-                          <div className="text-sm theme-text-secondary font-medium">{field.name}</div>
+                          <div className="text-sm font-bold text-gray-200 mb-1">Name</div>
+                          <div className="text-sm text-gray-100 font-medium">{field.name}</div>
                         </div>
                         <div>
-                          <div className="text-sm font-bold theme-text-primary mb-1">Type</div>
-                          <div className="text-sm theme-text-secondary">
-                            <span className="px-2 py-1 theme-bg-tertiary rounded-lg font-medium">{field.type}</span>
+                          <div className="text-sm font-bold text-gray-200 mb-1">Type</div>
+                          <div className="text-sm text-gray-300">
+                            <span className="px-2 py-1 bg-gray-700 text-blue-400 rounded-lg font-medium border border-gray-600">{field.type}</span>
                           </div>
                         </div>
                         <div>
-                          <div className="text-sm font-bold theme-text-primary mb-1">Required</div>
+                          <div className="text-sm font-bold text-gray-200 mb-1">Required</div>
                           <div className="text-sm">
                             {field.required ? (
-                              <span className="text-green-600 font-bold flex items-center gap-1">
+                              <span className="text-green-400 font-bold flex items-center gap-1">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
                                 Yes
                               </span>
                             ) : (
-                              <span className="theme-text-tertiary font-medium flex items-center gap-1">
+                              <span className="text-gray-500 font-medium flex items-center gap-1">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
@@ -349,15 +400,15 @@ export const HomePage: React.FC = () => {
                         </div>
                       </div>
                       {field.description && (
-                        <div className="mt-4 pt-4 border-t theme-border-primary">
-                          <div className="text-sm font-bold theme-text-primary mb-2">Description</div>
-                          <div className="text-sm theme-text-secondary leading-relaxed">{field.description}</div>
+                        <div className="mt-4 pt-4 border-t border-gray-600">
+                          <div className="text-sm font-bold text-gray-200 mb-2">Description</div>
+                          <div className="text-sm text-gray-300 leading-relaxed">{field.description}</div>
                         </div>
                       )}
                       {field.constraints && Object.keys(field.constraints).length > 0 && (
-                        <div className="mt-4 pt-4 border-t theme-border-primary">
-                          <div className="text-sm font-bold theme-text-primary mb-2">Constraints</div>
-                          <div className="text-xs theme-text-tertiary font-mono theme-bg-tertiary p-3 rounded-lg overflow-auto">
+                        <div className="mt-4 pt-4 border-t border-gray-600">
+                          <div className="text-sm font-bold text-gray-200 mb-2">Constraints</div>
+                          <div className="text-xs text-gray-300 font-mono bg-gray-900 p-3 rounded-lg overflow-auto border border-gray-700">
                             {JSON.stringify(field.constraints, null, 2)}
                           </div>
                         </div>
@@ -368,7 +419,7 @@ export const HomePage: React.FC = () => {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-4 pt-6 border-t theme-border-primary">
+              <div className="flex gap-4 pt-6 border-t border-gray-700">
                 <Button
                   onClick={() => {
                     setShowViewModal(false);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { DataContractCreate, Field } from '../../types/contract';
 import { Button } from '../common/Button';
@@ -40,6 +40,18 @@ export const ContractForm: React.FC<ContractFormProps> = ({
     name: 'fields',
   });
 
+  // Reset form when initialData changes (for editing)
+  useEffect(() => {
+    if (initialData) {
+      reset({
+        name: initialData.name || '',
+        version: initialData.version || '1.0.0',
+        status: initialData.status || 'active',
+        fields: initialData.fields || [{ name: '', type: 'string', required: true }],
+      });
+    }
+  }, [initialData, reset]);
+
   const fieldTypes = [
     'string',
     'integer',
@@ -62,7 +74,12 @@ export const ContractForm: React.FC<ContractFormProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Create Data Contract" size="lg">
+    <Modal 
+      isOpen={isOpen} 
+      onClose={handleClose} 
+      title={initialData ? `Edit Contract: ${initialData.name}` : "Create Data Contract"} 
+      size="lg"
+    >
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
@@ -84,12 +101,12 @@ export const ContractForm: React.FC<ContractFormProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 salmon:text-orange-800 mb-1">
+          <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 salmon:text-gray-900 mb-1">
             Status
           </label>
           <select
             {...register('status')}
-            className="w-full px-4 py-2 bg-white dark:bg-gray-800 salmon:bg-orange-50 text-gray-900 dark:text-gray-100 salmon:text-orange-900 border border-gray-300 dark:border-gray-600 salmon:border-orange-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            className="w-full px-4 py-2 bg-white dark:bg-gray-800 salmon:bg-white text-gray-900 dark:text-gray-100 salmon:text-gray-900 border border-gray-300 dark:border-gray-600 salmon:border-red-300 rounded-lg focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 salmon:focus:border-red-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 salmon:focus:ring-red-500/20"
           >
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
@@ -99,7 +116,7 @@ export const ContractForm: React.FC<ContractFormProps> = ({
 
         <div>
           <div className="flex justify-between items-center mb-4">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-200 salmon:text-orange-800">Fields</label>
+            <label className="text-sm font-medium text-gray-800 dark:text-gray-200 salmon:text-gray-900">Fields</label>
             <Button
               type="button"
               size="sm"
@@ -111,23 +128,25 @@ export const ContractForm: React.FC<ContractFormProps> = ({
 
           <div className="space-y-4">
             {fields.map((field, index) => (
-              <div key={field.id} className="p-4 border border-gray-300 dark:border-gray-600 salmon:border-orange-300 bg-gray-50 dark:bg-gray-800 salmon:bg-orange-50 rounded-lg">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Input
-                    label="Field Name"
-                    {...register(`fields.${index}.name`, {
-                      required: 'Field name is required',
-                    })}
-                    error={errors.fields?.[index]?.name?.message}
-                  />
+              <div key={field.id} className="p-6 border border-gray-600 bg-gray-800 rounded-lg">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                  <div className="lg:col-span-1">
+                    <Input
+                      label="Field Name"
+                      {...register(`fields.${index}.name`, {
+                        required: 'Field name is required',
+                      })}
+                      error={errors.fields?.[index]?.name?.message}
+                    />
+                  </div>
                   
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 salmon:text-orange-800 mb-1">
+                  <div className="lg:col-span-1">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
                       Type
                     </label>
                     <select
                       {...register(`fields.${index}.type`)}
-                      className="w-full px-4 py-2 bg-white dark:bg-gray-700 salmon:bg-orange-100 text-gray-900 dark:text-gray-100 salmon:text-orange-900 border border-gray-300 dark:border-gray-500 salmon:border-orange-400 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                      className="w-full px-4 py-3 bg-gray-700 text-gray-100 border border-gray-500 rounded-xl focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200"
                     >
                       {fieldTypes.map((type) => (
                         <option key={type} value={type}>
@@ -137,16 +156,24 @@ export const ContractForm: React.FC<ContractFormProps> = ({
                     </select>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <label className="flex items-center">
+                  <div className="lg:col-span-1 flex flex-col justify-center">
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                      Required
+                    </label>
+                    <label className="flex items-center p-3 bg-gray-700 rounded-xl border border-gray-600 cursor-pointer hover:bg-gray-600 transition-colors">
                       <input
                         type="checkbox"
                         {...register(`fields.${index}.required`)}
-                        className="mr-2"
+                        className="w-5 h-5 text-blue-600 bg-gray-600 border-gray-500 rounded focus:ring-blue-500 focus:ring-2"
                       />
-                      <span className="text-sm text-gray-700">Required</span>
+                      <span className="ml-3 text-sm font-medium text-gray-200">
+                        {/* Check if field is required by getting the current value */}
+                        Required Field
+                      </span>
                     </label>
-                    
+                  </div>
+
+                  <div className="lg:col-span-1 flex items-end justify-end">
                     {fields.length > 1 && (
                       <Button
                         type="button"
@@ -177,7 +204,7 @@ export const ContractForm: React.FC<ContractFormProps> = ({
             Cancel
           </Button>
           <Button type="submit" isLoading={isLoading}>
-            Create Contract
+            {initialData ? 'Update Contract' : 'Create Contract'}
           </Button>
         </div>
       </form>
