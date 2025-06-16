@@ -26,12 +26,12 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/panoero/data-contracts-studio.git"
+        "url": "https://github.com/Panosero/data-contracts-studio.git"
     },
     "bugs": {
-        "url": "https://github.com/panoero/data-contracts-studio/issues"
+        "url": "https://github.com/Panosero/data-contracts-studio/issues"
     },
-    "homepage": "https://github.com/panoero/data-contracts-studio#readme",
+    "homepage": "https://github.com/Panosero/data-contracts-studio#readme",
     "engines": {
         "node": ">=16.0.0",
         "npm": ">=8.0.0"

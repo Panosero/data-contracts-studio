@@ -43,5 +43,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Input validation with Pydantic
 - SQL injection protection with SQLAlchemy ORM
 
-[Unreleased]: https://github.com/panoero/data-contracts-studio/compare/v0.0.1...HEAD
-[0.0.1]: https://github.com/panoero/data-contracts-studio/releases/tag/v0.0.1
+[Unreleased]: https://github.com/Panosero/data-contracts-studio/compare/v0.0.1...HEAD
+[0.0.1]: https://github.com/Panosero/data-contracts-studio/releases/tag/v0.0.1
