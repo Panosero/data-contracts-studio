@@ -1,21 +1,53 @@
+"""Database configuration and session management.
+
+This module provides database connectivity, session management, and dependency
+injection for the Data Contracts Studio application using SQLAlchemy.
+"""
+
+from typing import Generator
+
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 from app.core.config import settings
 
-engine = create_engine(
-    settings.database_url,
-    connect_args={"check_same_thread": False} if "sqlite" in settings.database_url else {},
-)
 
+def create_database_engine() -> Engine:
+    """Create and configure the database engine.
+
+    Returns:
+        Engine: Configured SQLAlchemy engine instance.
+    """
+    connect_args = {}
+    if "sqlite" in settings.database_url:
+        connect_args["check_same_thread"] = False
+
+    return create_engine(settings.database_url, connect_args=connect_args)
+
+
+# Database engine and session configuration
+engine = create_database_engine()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Base class for SQLAlchemy models
 Base = declarative_base()
 
 
-def get_db():
-    """Database dependency."""
+def get_db() -> Generator[Session, None, None]:
+    """Dependency injection for database sessions.
+
+    This function provides a database session with automatic cleanup.
+    Used as a FastAPI dependency to ensure proper session management.
+
+    Yields:
+        Session: SQLAlchemy database session.
+
+    Example:
+        @app.get("/contracts/")
+        def get_contracts(db: Session = Depends(get_db)):
+            return db.query(Contract).all()
+    """
     db = SessionLocal()
     try:
         yield db

@@ -5,15 +5,16 @@ application using Pydantic settings with environment variable support.
 """
 
 from typing import List
+
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     """Application settings with environment variable support.
-    
+
     This class provides type-safe configuration management with automatic
     environment variable binding and validation.
-    
+
     Attributes:
         app_name: The application name for display and logging.
         app_version: Current application version.
@@ -43,7 +44,7 @@ class Settings(BaseSettings):
 
     class Config:
         """Pydantic configuration for environment variable handling."""
-        
+
         env_file = ".env"
         case_sensitive = False
 

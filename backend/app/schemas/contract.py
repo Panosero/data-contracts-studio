@@ -1,65 +1,181 @@
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+"""Pydantic schemas for data contract validation and serialization.
 
-from pydantic import BaseModel, Field
+This module defines the request/response schemas for the data contracts API,
+providing type safety, validation, and automatic documentation generation.
+"""
+
+from datetime import datetime
+from typing import Any, Dict, List, Literal, Optional
+
+from pydantic import BaseModel, Field, validator
 
 
 class FieldSchema(BaseModel):
-    """Schema for a data contract field."""
+    """Schema for a data contract field definition.
 
-    name: str
-    type: str
-    required: bool = True
-    description: Optional[str] = None
-    constraints: Optional[Dict[str, Any]] = None
+    Represents a single field in a data contract with its type,
+    constraints, and metadata.
+
+    Attributes:
+        name: Field identifier name.
+        type: Data type (string, integer, boolean, etc.).
+        required: Whether the field is mandatory.
+        description: Optional human-readable description.
+        constraints: Additional validation rules and constraints.
+    """
+
+    name: str = Field(..., min_length=1, max_length=100, description="Field name")
+    type: str = Field(..., min_length=1, description="Data type")
+    required: bool = Field(default=True, description="Whether field is required")
+    description: Optional[str] = Field(None, max_length=500, description="Field description")
+    constraints: Optional[Dict[str, Any]] = Field(None, description="Validation constraints")
+
+    @validator("name")
+    def validate_name(cls, v: str) -> str:
+        """Validate field name format.
+
+        Args:
+            v: Field name to validate.
+
+        Returns:
+            str: Validated field name.
+
+        Raises:
+            ValueError: If name contains invalid characters.
+        """
+        if not v.replace("_", "").replace("-", "").isalnum():
+            raise ValueError("Field name must be alphanumeric with underscores or hyphens")
+        return v.lower()
 
 
 class DataContractBase(BaseModel):
-    """Base schema for data contracts."""
+    """Base schema for data contracts with common fields.
 
-    name: str = Field(..., min_length=1, max_length=255)
-    version: str = Field(..., pattern=r"^\d+\.\d+\.\d+$")
-    status: str = Field(default="active", pattern="^(active|inactive|deprecated)$")
-    fields: List[FieldSchema]
+    This base class contains all the common fields shared between
+    create, update, and response schemas to follow DRY principles.
+
+    Attributes:
+        name: Contract name (unique identifier).
+        version: Semantic version string.
+        status: Contract lifecycle status.
+        fields: List of field definitions.
+    """
+
+    name: str = Field(..., min_length=1, max_length=255, description="Contract name")
+    version: str = Field(..., pattern=r"^\d+\.\d+\.\d+$", description="Semantic version")
+    status: Literal["active", "inactive", "deprecated"] = Field(
+        default="active", description="Contract status"
+    )
+    fields: List[FieldSchema] = Field(..., min_items=1, description="Field definitions")
+
+    @validator("name")
+    def validate_name(cls, v: str) -> str:
+        """Validate contract name format.
+
+        Args:
+            v: Contract name to validate.
+
+        Returns:
+            str: Validated contract name.
+        """
+        return v.strip()
 
 
 class DataContractCreate(DataContractBase):
-    """Schema for creating a data contract."""
+    """Schema for creating a new data contract.
+
+    Inherits all fields from DataContractBase without modifications.
+    Used for POST requests to create new contracts.
+    """
 
     pass
 
 
 class DataContractUpdate(BaseModel):
-    """Schema for updating a data contract."""
+    """Schema for updating an existing data contract.
+
+    All fields are optional to support partial updates.
+    Only provided fields will be updated in the database.
+
+    Attributes:
+        name: Optional new contract name.
+        version: Optional new version.
+        status: Optional new status.
+        fields: Optional new field definitions.
+    """
 
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     version: Optional[str] = Field(None, pattern=r"^\d+\.\d+\.\d+$")
-    status: Optional[str] = Field(None, pattern="^(active|inactive|deprecated)$")
-    fields: Optional[List[FieldSchema]] = None
+    status: Optional[Literal["active", "inactive", "deprecated"]] = None
+    fields: Optional[List[FieldSchema]] = Field(None, min_items=1)
 
 
 class DataContractResponse(DataContractBase):
-    """Schema for data contract responses."""
+    """Schema for data contract API responses.
 
-    id: int
-    created_at: datetime
-    updated_at: Optional[datetime] = None
+    Extends the base schema with database-generated fields
+    like ID and timestamps for complete contract representation.
+
+    Attributes:
+        id: Database primary key.
+        created_at: Contract creation timestamp.
+        updated_at: Last modification timestamp.
+    """
+
+    id: int = Field(..., description="Contract database ID")
+    created_at: datetime = Field(..., description="Creation timestamp")
+    updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
 
     class Config:
+        """Pydantic configuration for ORM integration."""
+
         from_attributes = True
+        json_encoders = {datetime: lambda v: v.isoformat()}
 
 
 class AutoGenerateRequest(BaseModel):
-    """Schema for auto-generation requests."""
+    """Schema for auto-generation requests.
 
-    source_type: str = Field(..., pattern="^(database|api|file)$")
-    source_data: str
-    table_name: Optional[str] = None
-    endpoint_url: Optional[str] = None
+    Used to generate data contracts from external sources
+    like database schemas, API responses, or file uploads.
+
+    Attributes:
+        source_type: Type of data source.
+        source_data: Raw source data content.
+        table_name: Optional table name for database sources.
+        endpoint_url: Optional URL for API sources.
+    """
+
+    source_type: Literal["database", "api", "file"] = Field(..., description="Source type")
+    source_data: str = Field(..., min_length=1, description="Source data content")
+    table_name: Optional[str] = Field(None, max_length=100, description="Database table name")
+    endpoint_url: Optional[str] = Field(None, description="API endpoint URL")
+
+    @validator("source_data")
+    def validate_source_data(cls, v: str) -> str:
+        """Validate source data is not empty.
+
+        Args:
+            v: Source data to validate.
+
+        Returns:
+            str: Validated source data.
+        """
+        return v.strip()
 
 
 class MessageResponse(BaseModel):
-    """Schema for simple message responses."""
+    """Schema for simple API response messages.
 
-    message: str
-    status: str = "success"
+    Used for operations that return status messages
+    rather than data objects.
+
+    Attributes:
+        message: Response message text.
+        status: Operation status indicator.
+    """
+
+    message: str = Field(..., description="Response message")
+    status: Literal["success", "error", "warning"] = Field(
+        default="success", description="Response status"
+    )
