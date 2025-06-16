@@ -4,13 +4,11 @@ This module provides database connectivity, session management, and dependency
 injection for the Data Contracts Studio application using SQLAlchemy.
 """
 
-from typing import Generator
-
+from app.core.config import settings
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
-
-from app.core.config import settings
+from typing import Generator
 
 
 def create_database_engine() -> Engine:

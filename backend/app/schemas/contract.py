@@ -5,9 +5,8 @@ providing type safety, validation, and automatic documentation generation.
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional
-
 from pydantic import BaseModel, Field, validator
+from typing import Any, Dict, List, Literal, Optional
 
 
 class FieldSchema(BaseModel):
@@ -176,6 +175,4 @@ class MessageResponse(BaseModel):
     """
 
     message: str = Field(..., description="Response message")
-    status: Literal["success", "error", "warning"] = Field(
-        default="success", description="Response status"
-    )
+    status: Literal["success", "error", "warning"] = Field(default="success", description="Response status")

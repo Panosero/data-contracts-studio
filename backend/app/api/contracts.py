@@ -5,11 +5,6 @@ including CRUD operations and auto-generation capabilities.
 """
 
 import logging
-from typing import List, Optional
-
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
-
 from app.core.database import get_db
 from app.schemas.contract import (
     AutoGenerateRequest,
@@ -20,6 +15,9 @@ from app.schemas.contract import (
 )
 from app.services.auto_generation_service import AutoGenerationService
 from app.services.contract_service import ContractService
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.orm import Session
+from typing import List, Optional
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -52,12 +50,8 @@ async def get_contracts(
         HTTPException: If database query fails.
     """
     try:
-        contracts = ContractService.get_contracts(
-            db=db, skip=skip, limit=limit, search=search, status=status
-        )
-        logger.info(
-            f"Retrieved {len(contracts)} contracts with filters: search={search}, status={status}"
-        )
+        contracts = ContractService.get_contracts(db=db, skip=skip, limit=limit, search=search, status=status)
+        logger.info(f"Retrieved {len(contracts)} contracts with filters: search={search}, status={status}")
         return contracts
     except Exception as e:
         logger.error(f"Failed to retrieve contracts: {str(e)}")
@@ -239,9 +233,7 @@ async def auto_generate_fields(request: AutoGenerateRequest) -> List[dict]:
 
     except ValueError as e:
         logger.warning(f"Auto-generation validation failed: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid source data: {str(e)}"
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid source data: {str(e)}")
     except Exception as e:
         logger.error(f"Auto-generation failed: {str(e)}")
         raise HTTPException(

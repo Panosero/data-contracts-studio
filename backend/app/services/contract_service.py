@@ -5,13 +5,11 @@ implementing the service pattern to separate concerns from API endpoints.
 """
 
 import logging
-from typing import List, Optional
-
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import Session
-
 from app.models.contract import DataContract
 from app.schemas.contract import DataContractCreate, DataContractUpdate
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
+from typing import List, Optional
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -115,16 +113,12 @@ class ContractService:
             # Validate contract name uniqueness
             existing = (
                 db.query(DataContract)
-                .filter(
-                    DataContract.name == contract.name, DataContract.version == contract.version
-                )
+                .filter(DataContract.name == contract.name, DataContract.version == contract.version)
                 .first()
             )
 
             if existing:
-                raise ValueError(
-                    f"Contract '{contract.name}' version '{contract.version}' already exists"
-                )
+                raise ValueError(f"Contract '{contract.name}' version '{contract.version}' already exists")
 
             # Create new contract instance
             db_contract = DataContract(
@@ -197,9 +191,7 @@ class ContractService:
                 )
 
                 if existing:
-                    raise ValueError(
-                        f"Contract '{new_name}' version '{new_version}' already exists"
-                    )
+                    raise ValueError(f"Contract '{new_name}' version '{new_version}' already exists")
 
             # Apply updates to contract
             for field, value in update_data.items():

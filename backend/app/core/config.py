@@ -4,9 +4,8 @@ This module provides centralized configuration management for the Data Contracts
 application using Pydantic settings with environment variable support.
 """
 
-from typing import List
-
 from pydantic_settings import BaseSettings
+from typing import List
 
 
 class Settings(BaseSettings):

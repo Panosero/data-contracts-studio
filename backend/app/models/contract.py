@@ -4,13 +4,11 @@ This module defines the SQLAlchemy model for data contracts, representing
 the core entity for schema definitions and contract management.
 """
 
+from app.core.database import Base
 from datetime import datetime
-from typing import Any, Dict, Optional
-
 from sqlalchemy import JSON, Column, DateTime, Integer, String
 from sqlalchemy.sql import func
-
-from app.core.database import Base
+from typing import Any, Dict, Optional
 
 
 class DataContract(Base):
