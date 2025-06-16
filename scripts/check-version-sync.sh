@@ -33,8 +33,8 @@ print_info "Checking version consistency across all components..."
 
 # Get versions from different sources
 VERSION_FILE=$(cat VERSION)
-ROOT_PACKAGE_JSON=$(grep '"version":' package.json | sed 's/.*"version": *"\([^"]*\)".*/\1/')
-FRONTEND_PACKAGE_JSON=$(grep '"version":' frontend/package.json | sed 's/.*"version": *"\([^"]*\)".*/\1/')
+ROOT_PACKAGE_JSON=$(grep '"version":' package.json | head -1 | sed 's/.*"version": *"\([^"]*\)".*/\1/')
+FRONTEND_PACKAGE_JSON=$(grep '"version":' frontend/package.json | head -1 | sed 's/.*"version": *"\([^"]*\)".*/\1/')
 BACKEND_VERSION=$(grep '__version__:' backend/app/__version__.py | sed 's/.*"\([^"]*\)".*/\1/')
 FRONTEND_VERSION_TS=$(grep "export const VERSION" frontend/src/version.ts | sed "s/.*'\([^']*\)'.*/\1/")
 

@@ -67,9 +67,13 @@ def create_application() -> FastAPI:
         Returns:
             Dict[str, Any]: API version and metadata.
         """
+        from app.__version__ import get_version_info
+
+        version_info = get_version_info()
+
         return {
-            "version": settings.app_version,
-            "name": settings.app_name,
+            "version": version_info["version"],
+            "name": version_info["title"],
             "api_version": "v1",
             "timestamp": datetime.utcnow().isoformat(),
             "status": "operational",
@@ -171,12 +175,19 @@ async def get_version() -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: Detailed version and build information.
     """
+    from app.__version__ import get_version_info
+
+    version_info = get_version_info()
+
     return {
-        "version": settings.app_version,
-        "name": settings.app_name,
-        "build_date": "2025-06-16",
+        "version": version_info["version"],
+        "name": version_info["title"],
+        "description": version_info["description"],
+        "build_date": datetime.utcnow().isoformat(),
         "environment": "production" if not settings.debug else "development",
         "api_version": "v1",
         "debug": settings.debug,
         "database": "connected",
+        "author": version_info["author"],
+        "license": version_info["license"],
     }

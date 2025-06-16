@@ -1,4 +1,4 @@
-.PHONY: help install dev build test clean docker-build docker-up docker-down backend-dev frontend-dev deploy deploy-pages deploy-server version release lint lint-strict
+.PHONY: help install dev build test clean docker-build docker-up docker-down backend-dev frontend-dev deploy deploy-pages deploy-server version version-check release lint lint-strict
 
 # Default target
 help:
@@ -43,6 +43,7 @@ help:
 	@echo ""
 	@echo "📋 Versioning & Release:"
 	@echo "  version        - Show current version"
+	@echo "  version-check  - Check if all version files are in sync"
 	@echo "  release        - Create a new release (usage: make release VERSION=0.0.2)"
 	@echo ""
 	@echo "CI/CD & Deployment:"
@@ -239,12 +240,17 @@ version:
 	@echo "Component Versions:"
 	@echo "- Root Package:     $(shell grep '"version"' package.json | head -1 | cut -d'"' -f4)"
 	@echo "- Frontend:         $(shell grep '"version"' frontend/package.json | head -1 | cut -d'"' -f4)"
-	@echo "- Backend API:      $(shell grep 'app_version:' backend/app/core/config.py | cut -d'"' -f2)"
+	@echo "- Backend API:      $(shell grep 'app_version: str' backend/app/core/config.py | cut -d'"' -f2)"
 	@echo ""
 	@echo "Git Information:"
 	@echo "- Branch:           $(shell git branch --show-current 2>/dev/null || echo 'Not a git repository')"
 	@echo "- Last Commit:      $(shell git log -1 --pretty=format:'%h - %s (%cr)' 2>/dev/null || echo 'No git history')"
 	@echo "- Tags:             $(shell git tag --sort=-version:refname | head -3 | tr '\n' ' ' 2>/dev/null || echo 'No tags')"
+
+version-check:
+	@echo "🔍 Checking version consistency..."
+	@chmod +x scripts/check-version-sync.sh
+	@./scripts/check-version-sync.sh
 
 release:
 	@if [ -z "$(VERSION)" ]; then \

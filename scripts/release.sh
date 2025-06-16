@@ -50,6 +50,13 @@ fi
 CURRENT_VERSION=$(cat VERSION)
 print_info "Preparing release from $CURRENT_VERSION to $NEW_VERSION"
 
+# Check version consistency first
+print_info "Checking current version consistency..."
+if ! ./scripts/check-version-sync.sh; then
+    print_error "Version files are not in sync. Please fix before releasing."
+    exit 1
+fi
+
 # Check if git is clean
 if ! git diff-index --quiet HEAD --; then
     print_error "Git working directory is not clean. Please commit or stash your changes."

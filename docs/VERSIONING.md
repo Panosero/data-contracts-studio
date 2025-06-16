@@ -1,6 +1,6 @@
-# Versioning and Release Management
+# Unified Versioning Strategy
 
-This document explains the versioning and release management system for Data Contracts Studio.
+Data Contracts Studio uses a **unified versioning approach** where both frontend and backend share the same version number. This simplifies release management and avoids version mismatches.
 
 ## Version Format
 
@@ -12,42 +12,67 @@ We follow [Semantic Versioning (SemVer)](https://semver.org/) with the format `M
 
 ## Current Version
 
-**v0.0.1** (Initial Release)
+**v0.0.3** (Latest Release)
 
-## Version Files
+## Version Sources
 
-The following files contain version information and are automatically synchronized:
+The version is maintained in several files but synchronized through our release process:
 
-1. `VERSION` - Single source of truth for the version number
-2. `package.json` - Root package version
-3. `frontend/package.json` - Frontend application version
-4. `backend/app/core/config.py` - Backend API version
-5. `backend/app/__version__.py` - Backend Python package version
-6. `frontend/src/version.ts` - Frontend version module
+1. **`VERSION`** - Master version file (source of truth)
+2. **`package.json`** - Root package version
+3. **`frontend/package.json`** - Frontend package version
+4. **`frontend/src/version.ts`** - Runtime frontend version
+5. **`backend/app/__version__.py`** - Backend module version
+6. **`backend/app/core/config.py`** - Backend API version
 
-## Release Workflow
+## Commands
 
-### 1. Manual Release (Recommended)
-
+### Check Version Consistency
 ```bash
-# Create a new release with version bump
-make release VERSION=0.0.2
-
-# This will:
-# - Run tests and linting
-# - Update all version files
-# - Create git commit and tag
-# - Provide next steps
+make version-check
+# or directly:
+./scripts/check-version-sync.sh
 ```
 
-### 2. Quick Version Check
-
+### View Current Versions
 ```bash
-# Check current version and consistency
 make version
+```
 
-# Check version consistency only
-./scripts/check-version.sh
+### Create New Release
+```bash
+make release VERSION=0.0.4
+# or directly:
+./scripts/release.sh 0.0.4
+```
+
+## Release Process
+
+The release script (`scripts/release.sh`) automatically:
+
+1. ✅ Validates version format (semantic versioning)
+2. ✅ Checks version consistency across all files
+3. ✅ Runs tests and linting
+4. ✅ Updates all version files synchronously
+5. ✅ Creates git commit and tag
+6. ✅ Provides next steps for deployment
+
+## Best Practices
+
+- **Always use the release script** - Never manually update version files
+- **Check version sync** - Run `make version-check` before releases
+- **Follow semantic versioning** - Use MAJOR.MINOR.PATCH format
+- **Test before release** - The script runs tests automatically
+
+## Version Mismatch Prevention
+
+The system now includes:
+- Pre-release version consistency checks
+- Automated synchronization of all version files
+- Clear error messages when versions are out of sync
+- Easy-to-use commands for version management
+
+This approach ensures that frontend and backend versions are always aligned, eliminating the "Frontend/Backend version mismatch" warning.
 ```
 
 ### 3. Publishing the Release

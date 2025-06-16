@@ -15,7 +15,7 @@ __license__: str = "MIT"
 
 def get_version_info() -> dict[str, str]:
     """Get comprehensive version information.
-    
+
     Returns:
         A dictionary containing version and metadata information.
     """
