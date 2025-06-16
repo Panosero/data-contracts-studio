@@ -1,3 +1,9 @@
+"""Auto-generation service for data contracts.
+
+This module provides services for automatically generating data contract fields
+from various data sources including database schemas, API responses, and CSV files.
+"""
+
 import json
 import re
 from app.schemas.contract import FieldSchema
@@ -5,7 +11,11 @@ from typing import Any, List
 
 
 class AutoGenerationService:
-    """Service for auto-generating contracts from various sources."""
+    """Service for auto-generating contract fields from various data sources.
+
+    This service provides static methods to analyze different data sources
+    and automatically generate field definitions for data contracts.
+    """
 
     @staticmethod
     def sanitize_field_name(name: str) -> str:
@@ -86,7 +96,18 @@ class AutoGenerationService:
 
     @staticmethod
     def generate_from_database_schema(schema_text: str, table_name: str) -> List[FieldSchema]:
-        """Generate fields from database schema."""
+        """Generate field definitions from database schema text.
+
+        Args:
+            schema_text: The database schema definition (CREATE TABLE statement).
+            table_name: Name of the table being analyzed for documentation purposes.
+
+        Returns:
+            List[FieldSchema]: List of field definitions extracted from the schema.
+
+        Raises:
+            ValueError: If the schema text cannot be parsed.
+        """
         fields = []
 
         # Clean up the schema text
@@ -123,7 +144,7 @@ class AutoGenerationService:
                 break
 
             # Try to parse as field definition
-            field = AutoGenerationService._parse_sql_field(line)
+            field = AutoGenerationService._parse_sql_field(line, table_name)
             if field:
                 fields.append(field)
 
@@ -131,7 +152,17 @@ class AutoGenerationService:
 
     @staticmethod
     def generate_from_api_response(api_response: str) -> List[FieldSchema]:
-        """Generate fields from API JSON response."""
+        """Generate field definitions from API JSON response.
+
+        Args:
+            api_response: JSON string containing the API response data.
+
+        Returns:
+            List[FieldSchema]: List of field definitions extracted from the JSON.
+
+        Raises:
+            ValueError: If the JSON format is invalid.
+        """
         try:
             data = json.loads(api_response)
             return AutoGenerationService._parse_json_structure(data)
@@ -140,7 +171,17 @@ class AutoGenerationService:
 
     @staticmethod
     def generate_from_csv_data(csv_data: str) -> List[FieldSchema]:
-        """Generate fields from CSV data or JSON array."""
+        """Generate field definitions from CSV data or JSON array.
+
+        This method can handle both CSV format and JSON arrays containing objects.
+        It automatically detects the format and processes accordingly.
+
+        Args:
+            csv_data: CSV data or JSON array as a string.
+
+        Returns:
+            List[FieldSchema]: List of field definitions with inferred types.
+        """
         data = csv_data.strip()
         if not data:
             return []
@@ -197,8 +238,16 @@ class AutoGenerationService:
         return fields
 
     @staticmethod
-    def _parse_sql_field(line: str) -> FieldSchema:
-        """Parse a single SQL field definition."""
+    def _parse_sql_field(line: str, table_name: str) -> FieldSchema:
+        """Parse a single SQL field definition line.
+
+        Args:
+            line: SQL field definition line to parse.
+            table_name: Name of the table for documentation purposes.
+
+        Returns:
+            FieldSchema: Parsed field definition or None if line cannot be parsed.
+        """
         # Remove trailing comma and clean up
         line = line.rstrip(",").strip()
 
@@ -257,12 +306,20 @@ class AutoGenerationService:
             name=AutoGenerationService.sanitize_field_name(field_name),
             type=field_type,
             required=required,
-            description=f"Generated from SQL field: {field_name}",
+            description=f"Generated from SQL field '{field_name}' in table '{table_name}'",
         )
 
     @staticmethod
     def _parse_json_structure(data: Any, prefix: str = "") -> List[FieldSchema]:
-        """Recursively parse JSON structure to extract fields."""
+        """Recursively parse JSON structure to extract field definitions.
+
+        Args:
+            data: JSON data structure to parse (dict, list, or primitive).
+            prefix: Field name prefix for nested structures.
+
+        Returns:
+            List[FieldSchema]: List of field definitions extracted from the structure.
+        """
         fields = []
 
         if isinstance(data, dict):
@@ -294,7 +351,9 @@ class AutoGenerationService:
                             description=f"Array of objects (original key: {key})",
                         )
                     )
-                    fields.extend(AutoGenerationService._parse_json_structure(value[0], f"{field_name}[0]"))
+                    # Sanitize the array prefix to avoid problematic characters like [0]
+                    array_prefix = f"{field_name}_0"
+                    fields.extend(AutoGenerationService._parse_json_structure(value[0], array_prefix))
                 else:
                     fields.append(
                         FieldSchema(
@@ -309,7 +368,14 @@ class AutoGenerationService:
 
     @staticmethod
     def _get_json_type(value: Any) -> str:
-        """Determine JSON value type."""
+        """Determine the data type of a JSON value.
+
+        Args:
+            value: The JSON value to analyze.
+
+        Returns:
+            str: The corresponding data type string.
+        """
         if isinstance(value, bool):
             return "boolean"
         elif isinstance(value, int):
@@ -329,7 +395,16 @@ class AutoGenerationService:
 
     @staticmethod
     def _infer_type_from_samples(samples: List[str]) -> str:
-        """Infer data type from sample values."""
+        """Infer data type from a list of sample string values.
+
+        Analyzes sample values to determine the most appropriate data type.
+
+        Args:
+            samples: List of string values to analyze.
+
+        Returns:
+            str: The inferred data type (integer, number, boolean, or string).
+        """
         if not samples or all(not s for s in samples):
             return "string"
 
@@ -353,7 +428,14 @@ class AutoGenerationService:
 
     @staticmethod
     def _is_integer(value: str) -> bool:
-        """Check if a string represents an integer."""
+        """Check if a string value represents a valid integer.
+
+        Args:
+            value: String value to check.
+
+        Returns:
+            bool: True if the value can be parsed as an integer.
+        """
         try:
             int(value)
             return True
@@ -362,7 +444,14 @@ class AutoGenerationService:
 
     @staticmethod
     def _is_float(value: str) -> bool:
-        """Check if a string represents a float."""
+        """Check if a string value represents a valid float.
+
+        Args:
+            value: String value to check.
+
+        Returns:
+            bool: True if the value can be parsed as a float.
+        """
         try:
             float(value)
             return True

@@ -29,6 +29,9 @@ def create_application() -> FastAPI:
 
     Returns:
         FastAPI: Configured application instance.
+
+    Raises:
+        Exception: If database table creation fails.
     """
     # Create database tables
     try:
@@ -89,14 +92,14 @@ app = create_application()
 # Exception handlers
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
-    """Handle request validation errors.
+    """Handle request validation errors with detailed error information.
 
     Args:
-        request: The incoming request.
-        exc: The validation exception.
+        request: The incoming HTTP request.
+        exc: The validation exception containing error details.
 
     Returns:
-        JSONResponse: Formatted error response.
+        JSONResponse: Formatted error response with validation details.
     """
     logger.warning(f"Validation error on {request.url}: {exc.errors()}")
 
@@ -113,20 +116,24 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={"message": "Validation error", "details": serializable_errors, "status": "error"},
+        content={
+            "message": "Validation error",
+            "details": serializable_errors,
+            "status": "error",
+        },
     )
 
 
 @app.exception_handler(SQLAlchemyError)
 async def database_exception_handler(request: Request, exc: SQLAlchemyError) -> JSONResponse:
-    """Handle database errors.
+    """Handle database errors with proper logging and user-friendly responses.
 
     Args:
-        request: The incoming request.
+        request: The incoming HTTP request.
         exc: The database exception.
 
     Returns:
-        JSONResponse: Formatted error response.
+        JSONResponse: Formatted error response for database failures.
     """
     logger.error(f"Database error on {request.url}: {str(exc)}")
     return JSONResponse(
@@ -138,10 +145,11 @@ async def database_exception_handler(request: Request, exc: SQLAlchemyError) -> 
 # API endpoints
 @app.get("/", response_model=Dict[str, Any])
 async def root() -> Dict[str, Any]:
-    """Root endpoint providing API information.
+    """Root endpoint providing API information and welcome message.
 
     Returns:
-        Dict[str, Any]: API welcome message and metadata.
+        Dict[str, Any]: API welcome message and metadata including version,
+                       documentation links, and operational status.
     """
     return {
         "message": f"Welcome to {settings.app_name}",
@@ -156,8 +164,12 @@ async def root() -> Dict[str, Any]:
 async def health_check() -> Dict[str, Any]:
     """Health check endpoint for monitoring and load balancers.
 
+    This endpoint provides basic health status information used by
+    monitoring systems, load balancers, and deployment tools.
+
     Returns:
-        Dict[str, Any]: Health status information.
+        Dict[str, Any]: Health status information including service name,
+                       version, timestamp, and environment details.
     """
     return {
         "status": "healthy",
@@ -172,8 +184,13 @@ async def health_check() -> Dict[str, Any]:
 async def get_version() -> Dict[str, Any]:
     """Get comprehensive application version information.
 
+    Provides detailed version and build information including metadata
+    about the application, environment, and dependencies.
+
     Returns:
-        Dict[str, Any]: Detailed version and build information.
+        Dict[str, Any]: Detailed version and build information including
+                       version number, build date, environment, database
+                       status, and license information.
     """
     from app.__version__ import get_version_info
 

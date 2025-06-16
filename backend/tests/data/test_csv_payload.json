@@ -1,0 +1,4 @@
+{
+    "source_type": "file",
+    "source_data": "user[id],user[name],order[0].total,product(name),status#code\n1,John Doe,99.99,Widget,200\n2,Jane Smith,149.50,Gadget,404"
+}

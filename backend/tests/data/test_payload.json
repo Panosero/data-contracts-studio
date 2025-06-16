@@ -1,0 +1,4 @@
+{
+    "source_type": "api",
+    "source_data": "{\"orders\": [{\"id\": 1, \"customer\": {\"name\": \"John Doe\", \"email\": \"john@example.com\"}, \"items\": [{\"product\": \"Widget\", \"quantity\": 2}]}], \"user\": {\"name\": \"Jane Smith\", \"roles\": [\"admin\", \"user\"]}}"
+}
