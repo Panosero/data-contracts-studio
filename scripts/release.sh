@@ -111,10 +111,14 @@ sed -i '' "s/app_version: str = \".*\"/app_version: str = \"$NEW_VERSION\"/" bac
 sed -i '' "s/__version__ = \".*\"/__version__ = \"$NEW_VERSION\"/" backend/app/__version__.py
 print_success "Updated backend version files"
 
+# Update frontend version.ts
+sed -i '' "s/export const VERSION = '.*';/export const VERSION = '$NEW_VERSION';/" frontend/src/version.ts
+print_success "Updated frontend version.ts"
+
 print_info "Creating git commit and tag..."
 
 # Add changes to git
-git add VERSION package.json frontend/package.json backend/app/core/config.py backend/app/__version__.py
+git add VERSION package.json frontend/package.json backend/app/core/config.py backend/app/__version__.py frontend/src/version.ts
 
 # Create commit
 git commit -m "chore: bump version to $NEW_VERSION"

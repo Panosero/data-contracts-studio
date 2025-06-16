@@ -30,7 +30,7 @@ export const Footer: React.FC = () => {
               Version Info
             </a>
             <span>•</span>
-            <a href="https://github.com/yourusername/data-contracts-studio" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300 transition-colors">
+            <a href="https://github.com/panoero/data-contracts-studio" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300 transition-colors">
               GitHub
             </a>
           </div>
