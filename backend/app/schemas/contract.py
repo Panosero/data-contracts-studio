@@ -5,7 +5,7 @@ providing type safety, validation, and automatic documentation generation.
 """
 
 from datetime import datetime
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Any, Dict, List, Literal, Optional
 
 
@@ -23,15 +23,19 @@ class FieldSchema(BaseModel):
         constraints: Additional validation rules and constraints.
     """
 
-    name: str = Field(..., min_length=1, max_length=100, description="Field name")
+    name: str = Field(..., description="Field name")
     type: str = Field(..., min_length=1, description="Data type")
     required: bool = Field(default=True, description="Whether field is required")
     description: Optional[str] = Field(None, max_length=500, description="Field description")
     constraints: Optional[Dict[str, Any]] = Field(None, description="Validation constraints")
 
-    @validator("name")
+    @field_validator("name")
+    @classmethod
     def validate_name(cls, v: str) -> str:
         """Validate field name format.
+
+        Allows most common special characters used in data field names
+        while maintaining basic identifier rules for compatibility.
 
         Args:
             v: Field name to validate.
@@ -40,11 +44,59 @@ class FieldSchema(BaseModel):
             str: Validated field name.
 
         Raises:
-            ValueError: If name contains invalid characters.
+            ValueError: If name contains truly problematic characters.
         """
-        if not v.replace("_", "").replace("-", "").isalnum():
-            raise ValueError("Field name must be alphanumeric with underscores or hyphens")
-        return v.lower()
+        if not v or not v.strip():
+            raise ValueError("Field name cannot be empty or whitespace only")
+
+        # Strip whitespace
+        name = v.strip()
+
+        # Check length constraints
+        if len(name) > 100:
+            raise ValueError("Field name cannot exceed 100 characters")
+
+        # Must start with letter, underscore, or dollar sign (common in many systems)
+        if not (name[0].isalpha() or name[0] in ["_", "$"]):
+            raise ValueError("Field name must start with a letter, underscore, or dollar sign")
+
+        # Define truly problematic characters that should be rejected
+        # Allow spaces and most special characters that are commonly used in field names
+        problematic_chars = {
+            "\t",
+            "\n",
+            "\r",
+            "(",
+            ")",
+            "[",
+            "]",
+            "{",
+            "}",
+            '"',
+            "'",
+            "`",
+            "\\",
+            "/",
+            "|",
+            "<",
+            ">",
+            "=",
+            "+",
+            "*",
+            "%",
+            "&",
+            "^",
+            "~",
+            ":",
+            ";",
+            ",",
+        }
+
+        invalid_chars = [c for c in name if c in problematic_chars]
+        if invalid_chars:
+            raise ValueError(f"Field name contains problematic characters: {', '.join(set(invalid_chars))}")
+
+        return name
 
 
 class DataContractBase(BaseModel):
@@ -67,7 +119,8 @@ class DataContractBase(BaseModel):
     )
     fields: List[FieldSchema] = Field(..., min_items=1, description="Field definitions")
 
-    @validator("name")
+    @field_validator("name")
+    @classmethod
     def validate_name(cls, v: str) -> str:
         """Validate contract name format.
 
@@ -86,8 +139,6 @@ class DataContractCreate(DataContractBase):
     Inherits all fields from DataContractBase without modifications.
     Used for POST requests to create new contracts.
     """
-
-    pass
 
 
 class DataContractUpdate(BaseModel):
@@ -150,7 +201,8 @@ class AutoGenerateRequest(BaseModel):
     table_name: Optional[str] = Field(None, max_length=100, description="Database table name")
     endpoint_url: Optional[str] = Field(None, description="API endpoint URL")
 
-    @validator("source_data")
+    @field_validator("source_data")
+    @classmethod
     def validate_source_data(cls, v: str) -> str:
         """Validate source data is not empty.
 

@@ -16,14 +16,7 @@ A modern, scalable data contract management platform built with React and FastAP
 ### Main Dashboard
 
 *Contract management dashboard with search and filtering capabilities*
-
-### Auto-Generate Contracts
-<!-- ![Auto Generate](docs/images/auto-generate.png) -->
-*Generate contracts from database schemas, APIs, or file uploads*
-
-### File Upload Feature
-<!-- ![File Upload](docs/images/file-upload.png) -->
-*Drag & drop file upload with CSV/JSON support*
+![main_dash](/docs/images/main_dash.png)
 
 ---
 
@@ -72,10 +65,6 @@ make dev
 - **Architecture**: Clean architecture with services and repositories
 - **API Documentation**: Auto-generated OpenAPI/Swagger docs
 
-3. **Direct Usage**:
-   - Download the `index.html` file
-   - Open it directly in your web browser
-   - No server setup required
 
 ## Auto-Generation Features
 

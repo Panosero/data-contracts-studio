@@ -1,12 +1,86 @@
 import json
 import re
-from typing import Any, List
-
 from app.schemas.contract import FieldSchema
+from typing import Any, List
 
 
 class AutoGenerationService:
     """Service for auto-generating contracts from various sources."""
+
+    @staticmethod
+    def _sanitize_field_name(name: str) -> str:
+        """Sanitize field name to make it valid according to schema rules.
+
+        Only replaces truly problematic characters while preserving
+        most special characters commonly used in field names.
+
+        Args:
+            name: Raw field name from source data.
+
+        Returns:
+            str: Sanitized field name that passes validation.
+        """
+        if not name or not name.strip():
+            return "unnamed_field"
+
+        original_name = name.strip()
+
+        # Replace only truly problematic characters
+        # Keep spaces and most special characters that are commonly used in data field names
+        problematic_chars = {
+            "\t",
+            "\n",
+            "\r",
+            "(",
+            ")",
+            "[",
+            "]",
+            "{",
+            "}",
+            '"',
+            "'",
+            "`",
+            "\\",
+            "/",
+            "|",
+            "<",
+            ">",
+            "=",
+            "+",
+            "*",
+            "%",
+            "&",
+            "^",
+            "~",
+            ":",
+            ";",
+            ",",
+        }
+
+        sanitized = ""
+        for char in original_name:
+            if char in problematic_chars:
+                sanitized += "_"
+            else:
+                sanitized += char
+
+        # Ensure it starts with letter, underscore, or dollar sign
+        if sanitized and not (sanitized[0].isalpha() or sanitized[0] in ["_", "$"]):
+            sanitized = "field_" + sanitized
+
+        # Handle special case where sanitized result is just underscore
+        if sanitized == "_":
+            sanitized = "field_underscore"
+
+        # Ensure it's not too long
+        if len(sanitized) > 100:
+            sanitized = sanitized[:100]
+
+        # Ensure it's not empty after sanitization
+        if not sanitized:
+            sanitized = "unnamed_field"
+
+        return sanitized
 
     @staticmethod
     def generate_from_database_schema(schema_text: str, table_name: str) -> List[FieldSchema]:
@@ -106,10 +180,12 @@ class AutoGenerationService:
                     sample_values.append(row_values[i])
 
             field_type = AutoGenerationService._infer_type_from_samples(sample_values)
+            # Sanitize the field name to ensure it's valid
+            sanitized_name = AutoGenerationService._sanitize_field_name(header)
 
             fields.append(
                 FieldSchema(
-                    name=header,
+                    name=sanitized_name,
                     type=field_type,
                     required=True,
                     description=f"Field from CSV column: {header}",
@@ -176,7 +252,7 @@ class AutoGenerationService:
             required = True
 
         return FieldSchema(
-            name=field_name,
+            name=AutoGenerationService._sanitize_field_name(field_name),
             type=field_type,
             required=required,
             description=f"Generated from SQL field: {field_name}",
@@ -189,7 +265,9 @@ class AutoGenerationService:
 
         if isinstance(data, dict):
             for key, value in data.items():
-                field_name = f"{prefix}.{key}" if prefix else key
+                # Sanitize the field name
+                sanitized_key = AutoGenerationService._sanitize_field_name(key)
+                field_name = f"{prefix}.{sanitized_key}" if prefix else sanitized_key
                 field_type = AutoGenerationService._get_json_type(value)
 
                 if isinstance(value, dict):
@@ -199,7 +277,7 @@ class AutoGenerationService:
                             name=field_name,
                             type="object",
                             required=True,
-                            description=f"Nested object containing {len(value)} fields",
+                            description=f"Nested object containing {len(value)} fields (original key: {key})",
                         )
                     )
                     # Add nested fields
@@ -211,19 +289,17 @@ class AutoGenerationService:
                             name=field_name,
                             type="array",
                             required=True,
-                            description="Array of objects",
+                            description=f"Array of objects (original key: {key})",
                         )
                     )
-                    fields.extend(
-                        AutoGenerationService._parse_json_structure(value[0], f"{field_name}[0]")
-                    )
+                    fields.extend(AutoGenerationService._parse_json_structure(value[0], f"{field_name}[0]"))
                 else:
                     fields.append(
                         FieldSchema(
                             name=field_name,
                             type=field_type,
                             required=True,
-                            description=f"Field of type {field_type}",
+                            description=f"Field of type {field_type} (original key: {key})",
                         )
                     )
 

@@ -59,6 +59,22 @@ def create_application() -> FastAPI:
     # Include API routers
     application.include_router(contracts_router, prefix="/api/v1")
 
+    # Add version endpoint to API v1
+    @application.get("/api/v1/version", response_model=Dict[str, Any])
+    async def get_api_version() -> Dict[str, Any]:
+        """Get API version information.
+
+        Returns:
+            Dict[str, Any]: API version and metadata.
+        """
+        return {
+            "version": settings.app_version,
+            "name": settings.app_name,
+            "api_version": "v1",
+            "timestamp": datetime.utcnow().isoformat(),
+            "status": "operational",
+        }
+
     return application
 
 
@@ -79,9 +95,21 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         JSONResponse: Formatted error response.
     """
     logger.warning(f"Validation error on {request.url}: {exc.errors()}")
+
+    # Convert error details to JSON-serializable format
+    serializable_errors = []
+    for error in exc.errors():
+        serializable_error = {
+            "type": error.get("type"),
+            "loc": error.get("loc"),
+            "msg": error.get("msg"),
+            "input": str(error.get("input")) if error.get("input") is not None else None,
+        }
+        serializable_errors.append(serializable_error)
+
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={"message": "Validation error", "details": exc.errors(), "status": "error"},
+        content={"message": "Validation error", "details": serializable_errors, "status": "error"},
     )
 
 
