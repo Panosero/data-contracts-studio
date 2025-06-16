@@ -33,8 +33,8 @@ export const Modal: React.FC<ModalProps> = ({
       />
       
       {/* Modal */}
-      <div className={`relative bg-white dark:bg-gray-900 salmon:bg-white rounded-2xl p-8 w-full ${sizeClasses[size]} max-h-[90vh] overflow-y-auto theme-shadow-xl fade-in border border-gray-200 dark:border-gray-700 salmon:border-red-200`}>
-        <div className="flex justify-between items-start mb-6">
+      <div className={`relative bg-white dark:bg-gray-900 salmon:bg-white rounded-2xl w-full ${sizeClasses[size]} max-h-[90vh] flex flex-col theme-shadow-xl fade-in border border-gray-200 dark:border-gray-700 salmon:border-red-200`}>
+        <div className="flex justify-between items-start p-8 pb-6 flex-shrink-0">
           <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 salmon:text-gray-900">{title}</h3>
           <button
             onClick={onClose}
@@ -43,7 +43,7 @@ export const Modal: React.FC<ModalProps> = ({
             ×
           </button>
         </div>
-        <div className="text-gray-900 dark:text-gray-100 salmon:text-gray-900">
+        <div className="text-gray-900 dark:text-gray-100 salmon:text-gray-900 px-8 pb-8 overflow-y-auto custom-scrollbar">
           {children}
         </div>
       </div>

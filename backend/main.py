@@ -46,5 +46,5 @@ async def get_version():
         "name": settings.app_name,
         "build_date": "2025-06-16",
         "environment": "production" if not settings.debug else "development",
-        "api_version": "v1"
+        "api_version": "v1",
     }

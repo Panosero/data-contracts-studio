@@ -5,16 +5,7 @@ export const Footer: React.FC = () => {
   return (
     <footer className="mt-16 py-8 border-t border-slate-600/30 theme-bg-card/50">
       <div className="container mx-auto px-6">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-center md:text-left">
-            <p className="theme-text-secondary text-sm">
-              © 2025 Data Contracts Studio. Built with React + FastAPI.
-            </p>
-            <p className="theme-text-secondary text-xs mt-1">
-              Modern data contract management platform
-            </p>
-          </div>
-          
+        <div className="flex flex-col md:flex-row justify-center items-center gap-6">
           <div className="flex items-center gap-4">
             <VersionBadge variant="minimal" position="inline" showBackendVersion={true} />
             
@@ -25,17 +16,21 @@ export const Footer: React.FC = () => {
               <span>Ready for production</span>
             </div>
           </div>
-        </div>
-        
-        <div className="mt-4 pt-4 border-t border-slate-600/20">
-          <div className="flex flex-wrap justify-center gap-4 text-xs theme-text-secondary">
-            <a href="/docs" className="hover:text-blue-400 transition-colors">API Documentation</a>
+          
+          <div className="flex flex-wrap gap-4 text-xs theme-text-secondary">
+            <a href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">
+              API Documentation
+            </a>
             <span>•</span>
-            <a href="/health" className="hover:text-green-400 transition-colors">Health Check</a>
+            <a href="http://localhost:8000/health" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors">
+              Health Check
+            </a>
             <span>•</span>
-            <a href="/version" className="hover:text-purple-400 transition-colors">Version Info</a>
+            <a href="http://localhost:8000/version" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition-colors">
+              Version Info
+            </a>
             <span>•</span>
-            <a href="https://github.com/yourusername/data-contracts-studio" className="hover:text-slate-300 transition-colors">
+            <a href="https://github.com/yourusername/data-contracts-studio" target="_blank" rel="noopener noreferrer" className="hover:text-slate-300 transition-colors">
               GitHub
             </a>
           </div>

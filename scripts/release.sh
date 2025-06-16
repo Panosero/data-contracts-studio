@@ -69,7 +69,7 @@ fi
 
 print_info "Running tests..."
 # Run tests
-if command -v make &> /dev/null; then
+if command -v make &>/dev/null; then
     make test || {
         print_error "Tests failed. Please fix them before releasing."
         exit 1
@@ -80,7 +80,7 @@ fi
 
 print_info "Running linting..."
 # Run linting
-if command -v make &> /dev/null; then
+if command -v make &>/dev/null; then
     make lint || {
         print_error "Linting failed. Please fix issues before releasing."
         exit 1
@@ -92,13 +92,13 @@ fi
 print_info "Updating version files..."
 
 # Update VERSION file
-echo "$NEW_VERSION" > VERSION
+echo "$NEW_VERSION" >VERSION
 
 # Update package.json
-if command -v node &> /dev/null && command -v npm &> /dev/null; then
+if command -v node &>/dev/null && command -v npm &>/dev/null; then
     npm version $NEW_VERSION --no-git-tag-version
     print_success "Updated root package.json"
-    
+
     # Update frontend package.json
     cd frontend
     npm version $NEW_VERSION --no-git-tag-version

@@ -1,39 +1,39 @@
 {
-  "name": "data-contracts-studio",
-  "version": "0.0.1",
-  "description": "A modern, scalable data contract management platform built with React and FastAPI",
-  "private": true,
-  "scripts": {
-    "dev": "make dev",
-    "build": "make build",
-    "deploy": "make deploy",
-    "test": "make test",
-    "lint": "make lint",
-    "version": "npm version",
-    "prerelease": "npm run test && npm run lint",
-    "postversion": "git push && git push --tags"
-  },
-  "keywords": [
-    "data-contracts",
-    "data-management",
-    "api-contracts",
-    "schema-management",
-    "fastapi",
-    "react",
-    "typescript"
-  ],
-  "author": "Your Name",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/yourusername/data-contracts-studio.git"
-  },
-  "bugs": {
-    "url": "https://github.com/yourusername/data-contracts-studio/issues"
-  },
-  "homepage": "https://github.com/yourusername/data-contracts-studio#readme",
-  "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=8.0.0"
-  }
+    "name": "data-contracts-studio",
+    "version": "0.0.1",
+    "description": "A modern, scalable data contract management platform built with React and FastAPI",
+    "private": true,
+    "scripts": {
+        "dev": "make dev",
+        "build": "make build",
+        "deploy": "make deploy",
+        "test": "make test",
+        "lint": "make lint",
+        "version": "npm version",
+        "prerelease": "npm run test && npm run lint",
+        "postversion": "git push && git push --tags"
+    },
+    "keywords": [
+        "data-contracts",
+        "data-management",
+        "api-contracts",
+        "schema-management",
+        "fastapi",
+        "react",
+        "typescript"
+    ],
+    "author": "Your Name",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/yourusername/data-contracts-studio.git"
+    },
+    "bugs": {
+        "url": "https://github.com/yourusername/data-contracts-studio/issues"
+    },
+    "homepage": "https://github.com/yourusername/data-contracts-studio#readme",
+    "engines": {
+        "node": ">=16.0.0",
+        "npm": ">=8.0.0"
+    }
 }
