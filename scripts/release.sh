@@ -115,7 +115,7 @@ fi
 
 # Update backend version
 sed -i '' "s/app_version: str = \".*\"/app_version: str = \"$NEW_VERSION\"/" backend/app/core/config.py
-sed -i '' "s/__version__ = \".*\"/__version__ = \"$NEW_VERSION\"/" backend/app/__version__.py
+sed -i '' "s/__version__: str = \".*\"/__version__: str = \"$NEW_VERSION\"/" backend/app/__version__.py
 print_success "Updated backend version files"
 
 # Update frontend version.ts
