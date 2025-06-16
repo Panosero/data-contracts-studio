@@ -1,7 +1,9 @@
+from typing import List, Optional
+
+from sqlalchemy.orm import Session
+
 from app.models.contract import DataContract
 from app.schemas.contract import DataContractCreate, DataContractUpdate
-from sqlalchemy.orm import Session
-from typing import List, Optional
 
 
 class ContractService:

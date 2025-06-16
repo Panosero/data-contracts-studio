@@ -1,3 +1,8 @@
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+
 from app.core.database import get_db
 from app.schemas.contract import (
     AutoGenerateRequest,
@@ -8,9 +13,6 @@ from app.schemas.contract import (
 )
 from app.services.auto_generation_service import AutoGenerationService
 from app.services.contract_service import ContractService
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
-from typing import List, Optional
 
 router = APIRouter(prefix="/contracts", tags=["contracts"])
 
@@ -24,7 +26,9 @@ async def get_contracts(
     db: Session = Depends(get_db),
 ):
     """Get all contracts with optional filtering."""
-    contracts = ContractService.get_contracts(db=db, skip=skip, limit=limit, search=search, status=status)
+    contracts = ContractService.get_contracts(
+        db=db, skip=skip, limit=limit, search=search, status=status
+    )
     return contracts
 
 

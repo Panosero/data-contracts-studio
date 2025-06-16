@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
 
-export type Theme = 'dark'; // Only dark mode for now
+export type Theme = "dark"; // Only dark mode for now
 
 interface ThemeContextType {
   theme: Theme;
@@ -13,7 +13,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;
 };
@@ -23,16 +23,18 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>('dark'); // Always dark mode
+  const [theme, setTheme] = useState<Theme>("dark"); // Always dark mode
 
   useEffect(() => {
     // Always apply dark theme
-    document.documentElement.className = 'dark';
+    document.documentElement.className = "dark";
   }, []);
 
   const toggleTheme = () => {
     // Show coming soon notice instead of switching themes
-    alert('🎨 More themes coming soon!\n\nWe\'re working on Light Mode and Salmon Mode.\nStay tuned for updates!');
+    alert(
+      "🎨 More themes coming soon!\n\nWe're working on Light Mode and Salmon Mode.\nStay tuned for updates!",
+    );
   };
 
   return (

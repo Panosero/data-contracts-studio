@@ -1,7 +1,8 @@
 import json
 import re
-from app.schemas.contract import FieldSchema
 from typing import Any, List
+
+from app.schemas.contract import FieldSchema
 
 
 class AutoGenerationService:
@@ -207,10 +208,15 @@ class AutoGenerationService:
                     # Array of objects - analyze first object
                     fields.append(
                         FieldSchema(
-                            name=field_name, type="array", required=True, description="Array of objects"
+                            name=field_name,
+                            type="array",
+                            required=True,
+                            description="Array of objects",
                         )
                     )
-                    fields.extend(AutoGenerationService._parse_json_structure(value[0], f"{field_name}[0]"))
+                    fields.extend(
+                        AutoGenerationService._parse_json_structure(value[0], f"{field_name}[0]")
+                    )
                 else:
                     fields.append(
                         FieldSchema(

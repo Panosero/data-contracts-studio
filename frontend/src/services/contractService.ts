@@ -1,16 +1,18 @@
-import { apiClient } from './api';
-import { 
-  DataContract, 
-  DataContractCreate, 
-  DataContractUpdate, 
+import { apiClient } from "./api";
+import {
+  DataContract,
+  DataContractCreate,
+  DataContractUpdate,
   AutoGenerateRequest,
-  ContractsListParams 
-} from '../types/contract';
+  ContractsListParams,
+} from "../types/contract";
 
 export class ContractService {
-  private static readonly BASE_PATH = '/contracts/';
+  private static readonly BASE_PATH = "/contracts/";
 
-  static async getContracts(params: ContractsListParams = {}): Promise<DataContract[]> {
+  static async getContracts(
+    params: ContractsListParams = {},
+  ): Promise<DataContract[]> {
     const response = await apiClient.get(this.BASE_PATH, { params });
     return response.data;
   }
@@ -20,12 +22,17 @@ export class ContractService {
     return response.data;
   }
 
-  static async createContract(contract: DataContractCreate): Promise<DataContract> {
+  static async createContract(
+    contract: DataContractCreate,
+  ): Promise<DataContract> {
     const response = await apiClient.post(this.BASE_PATH, contract);
     return response.data;
   }
 
-  static async updateContract(id: number, contract: DataContractUpdate): Promise<DataContract> {
+  static async updateContract(
+    id: number,
+    contract: DataContractUpdate,
+  ): Promise<DataContract> {
     const response = await apiClient.put(`${this.BASE_PATH}${id}`, contract);
     return response.data;
   }
@@ -34,8 +41,13 @@ export class ContractService {
     await apiClient.delete(`${this.BASE_PATH}${id}`);
   }
 
-  static async autoGenerateFields(request: AutoGenerateRequest): Promise<any[]> {
-    const response = await apiClient.post(`${this.BASE_PATH}auto-generate`, request);
+  static async autoGenerateFields(
+    request: AutoGenerateRequest,
+  ): Promise<any[]> {
+    const response = await apiClient.post(
+      `${this.BASE_PATH}auto-generate`,
+      request,
+    );
     return response.data;
   }
 }

@@ -301,10 +301,35 @@ make help           # Show all available commands
 make install        # Install all dependencies
 make dev            # Start development environment
 make test           # Run all tests
+make lint           # Run code linting (flake8 + eslint)
+make format         # Format code (Black + Prettier)
 make build          # Build for production
 make docker-up      # Start with Docker
 make clean          # Clean build artifacts
 ```
+
+### Code Style & Formatting
+
+This project uses **Black** formatter with a **100-character line length**:
+
+```bash
+# Format all code (Python with Black, TypeScript with Prettier)
+make format
+
+# Check code style and linting
+make lint
+
+# Backend only formatting
+cd backend && black app && isort app
+
+# Frontend only formatting  
+cd frontend && npm run format
+```
+
+**Configuration:**
+- Python: Black formatter (100 chars), isort for imports, flake8 for linting
+- TypeScript: Prettier formatter, ESLint for linting
+- Line length: 100 characters for both Python and TypeScript
 
 ## ⚙️ Configuration (.env file)
 

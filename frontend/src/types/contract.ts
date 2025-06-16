@@ -10,7 +10,7 @@ export interface DataContract {
   id: number;
   name: string;
   version: string;
-  status: 'active' | 'inactive' | 'deprecated';
+  status: "active" | "inactive" | "deprecated";
   fields: Field[];
   created_at: string;
   updated_at?: string;
@@ -19,19 +19,19 @@ export interface DataContract {
 export interface DataContractCreate {
   name: string;
   version: string;
-  status: 'active' | 'inactive' | 'deprecated';
+  status: "active" | "inactive" | "deprecated";
   fields: Field[];
 }
 
 export interface DataContractUpdate {
   name?: string;
   version?: string;
-  status?: 'active' | 'inactive' | 'deprecated';
+  status?: "active" | "inactive" | "deprecated";
   fields?: Field[];
 }
 
 export interface AutoGenerateRequest {
-  source_type: 'database' | 'api' | 'file';
+  source_type: "database" | "api" | "file";
   source_data: string;
   table_name?: string;
   endpoint_url?: string;
