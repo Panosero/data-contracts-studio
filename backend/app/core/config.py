@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./data_contracts.db"
 
     # CORS configuration
-    allowed_origins: List[str] = ["http://localhost:3000", "http://localhost:8080"]
+    allowed_origins: List[str] = ["http://localhost:3333", "http://localhost:8080"]
 
     # Security configuration
     secret_key: str = "your-secret-key-change-in-production"

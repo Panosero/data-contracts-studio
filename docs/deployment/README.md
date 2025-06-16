@@ -28,13 +28,13 @@ make deploy
 
 **Requirements:**
 - Docker and Docker Compose installed
-- Ports 80 and 8000 open in firewall
+- Ports 80 and 8888 open in firewall
 - Internet connection for IP detection
 
 **Access your app:**
 - Website: `http://YOUR_SERVER_IP`
-- API: `http://YOUR_SERVER_IP:8000/api/v1`
-- Docs: `http://YOUR_SERVER_IP:8000/docs`
+- API: `http://YOUR_SERVER_IP:8888/api/v1`
+- Docs: `http://YOUR_SERVER_IP:8888/docs`
 
 ---
 
@@ -260,7 +260,7 @@ git push origin main  # Triggers automatic deployment
 ```bash
 # Allow HTTP traffic
 sudo ufw allow 80/tcp
-sudo ufw allow 8000/tcp
+sudo ufw allow 8888/tcp
 
 # Allow SSH (if not already enabled)
 sudo ufw allow 22/tcp
@@ -301,7 +301,7 @@ If auto-detection fails, you'll be prompted to enter the IP manually.
 ```bash
 SERVER_IP=your.server.ip.address
 ALLOWED_ORIGINS=["http://your.server.ip.address"]
-REACT_APP_API_URL=http://your.server.ip.address:8000/api/v1
+REACT_APP_API_URL=http://your.server.ip.address:8888/api/v1
 ```
 
 ---
@@ -313,7 +313,7 @@ REACT_APP_API_URL=http://your.server.ip.address:8000/api/v1
 **Cannot access application:**
 - ✅ Check firewall rules: `sudo ufw status`
 - ✅ Verify server IP is correct
-- ✅ Ensure ports 80 and 8000 are open
+- ✅ Ensure ports 80 and 8888 are open
 - ✅ Check if services are running: `docker-compose ps`
 
 **CORS errors in browser:**
@@ -325,12 +325,12 @@ REACT_APP_API_URL=http://your.server.ip.address:8000/api/v1
 - ✅ Check API URL in environment variables
 - ✅ Verify CORS settings in backend
 - ✅ Check browser console for errors
-- ✅ Test API directly: `curl http://YOUR_IP:8000/health`
+- ✅ Test API directly: `curl http://YOUR_IP:8888/health`
 
 **Backend not responding:**
 - ✅ Check Docker logs: `docker-compose logs backend`
 - ✅ Verify database connection
-- ✅ Test health endpoint: `curl http://localhost:8000/health`
+- ✅ Test health endpoint: `curl http://localhost:8888/health`
 
 **Database connection issues:**
 - ✅ Check database container: `docker-compose logs db`
@@ -357,8 +357,8 @@ docker-compose logs frontend
 docker-compose logs db
 
 # Test API connectivity
-curl http://YOUR_SERVER_IP:8000/health
-curl http://YOUR_SERVER_IP:8000/api/v1/contracts
+curl http://YOUR_SERVER_IP:8888/health
+curl http://YOUR_SERVER_IP:8888/api/v1/contracts
 
 # Check environment variables
 cat .env

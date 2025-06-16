@@ -69,8 +69,8 @@ install-frontend:
 # Development
 dev: install
 	@echo "🚀 Starting development environment..."
-	@echo "Backend: http://localhost:8000"
-	@echo "Frontend: http://localhost:3000"
+	@echo "Backend: http://localhost:8888"
+	@echo "Frontend: http://localhost:3333"
 	@echo "Press Ctrl+C to stop"
 	@make -j2 backend-dev frontend-dev
 
@@ -80,7 +80,7 @@ backend-dev:
 		echo "🔧 Backend virtual environment not found. Installing..."; \
 		make install-backend; \
 	fi
-	cd backend && source venv/bin/activate && uvicorn main:app --reload --host 0.0.0.0 --port 8000
+	cd backend && source venv/bin/activate && uvicorn main:app --reload --host 0.0.0.0 --port 8888
 
 frontend-dev:
 	@echo "⚛️  Starting frontend development server..."
@@ -124,7 +124,7 @@ docker-up:
 	docker-compose up -d
 	@echo "✅ Application started"
 	@echo "Frontend: http://localhost"
-	@echo "Backend: http://localhost:8000"
+	@echo "Backend: http://localhost:8888"
 
 docker-down:
 	@echo "🐳 Stopping Docker Compose services..."
@@ -175,8 +175,8 @@ format:
 # Health check
 health:
 	@echo "🏥 Checking application health..."
-	@curl -f http://localhost:8000/health || echo "Backend not responding"
-	@curl -f http://localhost:3000 || echo "Frontend not responding"
+	@curl -f http://localhost:8888/health || echo "Backend not responding"
+	@curl -f http://localhost:3333 || echo "Frontend not responding"
 
 # CI/CD and Deployment
 ci-test:

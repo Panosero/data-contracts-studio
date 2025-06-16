@@ -6,7 +6,7 @@
 echo "🧪 Testing Data Contracts Studio Version Endpoints"
 echo "================================================"
 
-API_URL="http://localhost:8000"
+API_URL="http://localhost:8888"
 
 echo "1. Testing main version endpoint..."
 echo "GET $API_URL/version"

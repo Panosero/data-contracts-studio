@@ -103,9 +103,9 @@ jobs:
           
           ## Verification
           
-          - **Frontend**: http://localhost:3000
-          - **Backend API**: http://localhost:8000
-          - **API Documentation**: http://localhost:8000/docs
+          - **Frontend**: http://localhost:3333
+          - **Backend API**: http://localhost:8888
+          - **API Documentation**: http://localhost:8888/docs
           
           ## Version Information
           - Version: ${{ steps.get_version.outputs.version }}

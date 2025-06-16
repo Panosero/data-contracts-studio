@@ -61,7 +61,7 @@ setup_backend() {
         echo "DEBUG=True
 DATABASE_URL=sqlite:///./data_contracts.db
 SECRET_KEY=dev-secret-key-change-in-production
-ALLOWED_ORIGINS=[\"http://localhost:3000\"]" >backend/.env
+ALLOWED_ORIGINS=[\"http://localhost:3333\"]" >backend/.env
     fi
 
     # Initialize database using Makefile
@@ -86,7 +86,7 @@ setup_frontend() {
     # Copy environment file if it doesn't exist
     if [ ! -f "frontend/.env" ]; then
         print_status "Creating frontend .env file..."
-        echo "REACT_APP_API_URL=http://localhost:8000/api/v1
+        echo "REACT_APP_API_URL=http://localhost:8888/api/v1
 REACT_APP_APP_NAME=Data Contracts Studio
 REACT_APP_VERSION=1.0.0" >frontend/.env
     fi
@@ -118,9 +118,9 @@ EOF
     cat >run-dev.sh <<'EOF'
 #!/bin/bash
 echo "🚀 Starting Data Contracts Studio using Makefile..."
-echo "Backend will be available at: http://localhost:8000"
-echo "Frontend will be available at: http://localhost:3000"
-echo "API Documentation: http://localhost:8000/docs"
+echo "Backend will be available at: http://localhost:8888"
+echo "Frontend will be available at: http://localhost:3333"
+echo "API Documentation: http://localhost:8888/docs"
 echo ""
 echo "Press Ctrl+C to stop all services"
 
@@ -162,9 +162,9 @@ main() {
     echo "  make help             # See all available commands"
     echo ""
     echo "🌍 URLs (when running):"
-    echo "  Frontend: http://localhost:3000"
-    echo "  Backend:  http://localhost:8000"
-    echo "  API Docs: http://localhost:8000/docs"
+    echo "  Frontend: http://localhost:3333"
+    echo "  Backend:  http://localhost:8888"
+    echo "  API Docs: http://localhost:8888/docs"
 }
 
 main "$@"

@@ -13,7 +13,7 @@ sys.path.insert(0, str(backend_dir))
 def test_api_integration():
     """Test the complete API integration with field validation."""
 
-    base_url = "http://localhost:8000/api/v1"
+    base_url = "http://localhost:8888/api/v1"
 
     print("Testing API Integration with Enhanced Field Validation")
     print("=" * 60)
@@ -144,7 +144,7 @@ def test_api_integration():
 
     except requests.RequestException as e:
         print(f"\n✗ FAILED: Network error - {e}")
-        print("Make sure the FastAPI server is running on http://localhost:8000")
+        print("Make sure the FastAPI server is running on http://localhost:8888")
         return False
     except Exception as e:
         print(f"\n✗ FAILED: Unexpected error - {e}")

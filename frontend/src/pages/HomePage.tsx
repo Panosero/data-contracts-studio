@@ -59,7 +59,7 @@ export const HomePage: React.FC = () => {
       if (document.body.contains(notification)) {
         document.body.removeChild(notification);
       }
-    }, 3000);
+    }, 3333);
   };
 
   const handleCreateContract = async (contractData: DataContractCreate) => {
@@ -140,7 +140,7 @@ export const HomePage: React.FC = () => {
           </h1>
           <p className="theme-text-secondary mb-6">
             Please make sure the backend server is running on
-            http://localhost:8000
+            http://localhost:8888
           </p>
           <Button onClick={() => window.location.reload()} className="w-full">
             🔄 Retry

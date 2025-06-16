@@ -33,8 +33,8 @@ print_info() {
 # Configuration
 APP_DIR="/opt/data-contracts-studio"
 SERVICE_USER="appuser"
-BACKEND_PORT="8000"
-FRONTEND_PORT="3000"
+BACKEND_PORT="8888"
+FRONTEND_PORT="3333"
 NGINX_AVAILABLE="/etc/nginx/sites-available"
 NGINX_ENABLED="/etc/nginx/sites-enabled"
 
@@ -255,7 +255,7 @@ server {
             add_header Access-Control-Allow-Origin "http://$SERVER_IP";
             add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS";
             add_header Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization";
-            add_header Access-Control-Max-Age 1728000;
+            add_header Access-Control-Max-Age 1728888;
             add_header Content-Type 'text/plain charset=UTF-8';
             add_header Content-Length 0;
             return 204;

@@ -343,7 +343,7 @@ make deploy
 # Server settings
 SERVER_IP=192.168.1.100        # Your server IP (or auto-detect)
 FRONTEND_PORT=80               # Web interface port
-BACKEND_PORT=8000             # API port
+BACKEND_PORT=8888             # API port
 DATABASE_PORT=5432            # Database port
 
 # Secrets (keep secure!)
@@ -361,7 +361,7 @@ ANTHROPIC_API_KEY=your-anthropic-key
 ```bash
 SERVER_IP=192.168.1.100
 FRONTEND_PORT=80
-BACKEND_PORT=8000
+BACKEND_PORT=8888
 ```
 
 **Shared server (avoid port conflicts):**
@@ -376,7 +376,7 @@ DATABASE_PORT=5433
 ```bash
 SERVER_IP=data-contracts.company.com
 FRONTEND_PORT=80
-BACKEND_PORT=8000
+BACKEND_PORT=8888
 ```
 
 ## 🚀 Production Deployment
@@ -426,14 +426,14 @@ cd backend
 pip install -r requirements.txt
 export ALLOWED_ORIGINS='["http://YOUR_SERVER_IP"]'
 make db-migrate
-gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8888
 ```
 
 #### Frontend Deployment
 ```bash
 cd frontend
 npm install
-REACT_APP_API_URL=http://YOUR_SERVER_IP:8000/api/v1 npm run build
+REACT_APP_API_URL=http://YOUR_SERVER_IP:8888/api/v1 npm run build
 # Serve the build folder with your preferred web server (nginx, apache, etc.)
 ```
 
@@ -527,7 +527,7 @@ DEBUG=True
 SECRET_KEY=dev-secret-key
 
 # Frontend  
-REACT_APP_API_URL=http://localhost:8000/api/v1
+REACT_APP_API_URL=http://localhost:8888/api/v1
 ```
 
 ### Production
@@ -544,8 +544,8 @@ REACT_APP_API_URL=https://api.yourdomain.com/api/v1
 ## 📚 API Documentation
 
 The API documentation is automatically generated and available at:
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
+- **Swagger UI**: http://localhost:8888/docs
+- **ReDoc**: http://localhost:8888/redoc
 
 ### Key Endpoints
 
@@ -565,12 +565,12 @@ The API documentation is automatically generated and available at:
 DEBUG=False
 DATABASE_URL=sqlite:///./data_contracts.db
 SECRET_KEY=your-secret-key
-ALLOWED_ORIGINS=["http://localhost:3000"]
+ALLOWED_ORIGINS=["http://localhost:3333"]
 ```
 
 #### Frontend (.env)
 ```env
-REACT_APP_API_URL=http://localhost:8000/api/v1
+REACT_APP_API_URL=http://localhost:8888/api/v1
 REACT_APP_APP_NAME=Data Contracts Studio
 ```
 
