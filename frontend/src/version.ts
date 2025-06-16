@@ -5,7 +5,7 @@
  * The version is managed centrally through the release script.
  */
 
-export const VERSION = '0.0.3';
+export const VERSION = '0.0.4';
 export const APP_NAME = 'Data Contracts Studio';
 export const BUILD_DATE = new Date().toISOString();
 
