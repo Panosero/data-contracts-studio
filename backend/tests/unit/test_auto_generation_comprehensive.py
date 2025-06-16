@@ -196,21 +196,21 @@ class TestAutoGenerationServiceComprehensive:
 
     def test_parse_sql_field_integer(self) -> None:
         """Test SQL field parsing for integer types."""
-        result = AutoGenerationService._parse_sql_field("user_id INTEGER PRIMARY KEY")
+        result = AutoGenerationService._parse_sql_field("user_id INTEGER PRIMARY KEY", "test_table")
         assert result is not None
         assert result.name == "user_id"
         assert result.type == "integer"
 
     def test_parse_sql_field_varchar(self) -> None:
         """Test SQL field parsing for varchar types."""
-        result = AutoGenerationService._parse_sql_field("name VARCHAR(255) NOT NULL")
+        result = AutoGenerationService._parse_sql_field("name VARCHAR(255) NOT NULL", "test_table")
         assert result is not None
         assert result.name == "name"
         assert result.type == "string"
 
     def test_parse_sql_field_timestamp(self) -> None:
         """Test SQL field parsing for timestamp types."""
-        result = AutoGenerationService._parse_sql_field("created_at TIMESTAMP")
+        result = AutoGenerationService._parse_sql_field("created_at TIMESTAMP", "test_table")
         assert result is not None
         assert result.name == "created_at"
         assert result.type == "datetime"
@@ -218,11 +218,11 @@ class TestAutoGenerationServiceComprehensive:
     def test_parse_sql_field_invalid(self) -> None:
         """Test SQL field parsing with invalid input."""
         # Single word should return None
-        result = AutoGenerationService._parse_sql_field("invalid")
+        result = AutoGenerationService._parse_sql_field("invalid", "test_table")
         assert result is None
 
         # Valid format but unknown type should default to string
-        result = AutoGenerationService._parse_sql_field("invalid_field UNKNOWN_TYPE")
+        result = AutoGenerationService._parse_sql_field("invalid_field UNKNOWN_TYPE", "test_table")
         assert result is not None
         assert result.name == "invalid_field"
         assert result.type == "string"
