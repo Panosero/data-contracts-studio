@@ -1,0 +1,21 @@
+[Unit]
+Description=Data Contracts Studio Database Container
+Documentation=man:podman-generate-systemd(1)
+Wants=network-online.target
+After=network-online.target data-contracts-studio-pod.service
+RequiresMountsFor=%t/containers
+BindsTo=data-contracts-studio-pod.service
+
+[Service]
+Environment=PODMAN_SYSTEMD_UNIT=%n
+Restart=on-failure
+TimeoutStopSec=70
+ExecStartPre=/bin/rm -f %t/%n.ctr-id
+ExecStart=/usr/bin/podman run --cidfile=%t/%n.ctr-id --cgroups=no-conmon --rm --sdnotify=conmon --replace --pod-id-file %t/data-contracts-studio-pod.pod-id --name data-contracts-db -e POSTGRES_DB=datacontracts -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password -v postgres_data:/var/lib/postgresql/data:Z --health-cmd 'pg_isready -U postgres -d datacontracts' --health-interval 30s --health-timeout 10s --health-retries 5 postgres:15-alpine
+ExecStop=/usr/bin/podman stop --ignore --cidfile=%t/%n.ctr-id
+ExecStopPost=/usr/bin/podman rm -f --ignore --cidfile=%t/%n.ctr-id
+Type=notify
+NotifyAccess=all
+
+[Install]
+WantedBy=default.target

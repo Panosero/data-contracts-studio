@@ -410,7 +410,374 @@ BACKEND_PORT=8888
    docker-compose up -d --build
    ```
 
-### Server Deployment without Docker
+## 🦭 Podman Deployment (Rootless Containers)
+
+**Podman** is a secure, rootless alternative to Docker that's especially popular in enterprise environments and security-conscious deployments.
+
+### Why Choose Podman?
+
+- **🔒 Rootless**: Runs without root privileges for enhanced security
+- **🏢 Enterprise-Ready**: Preferred by many organizations for production
+- **⚡ Fast**: Lightweight container runtime without daemon
+- **🔄 Compatible**: Drop-in replacement for most Docker commands
+- **🛡️ Secure**: Better isolation and security by default
+
+### Prerequisites
+
+#### Install Podman
+
+**macOS** (via Homebrew):
+```bash
+brew install podman
+podman machine init
+podman machine start
+```
+
+**Ubuntu/Debian**:
+```bash
+sudo apt update
+sudo apt install podman podman-compose
+```
+
+**CentOS/RHEL/Fedora**:
+```bash
+sudo dnf install podman podman-compose
+```
+
+**Verify Installation**:
+```bash
+podman --version
+podman-compose --version
+```
+
+### Podman Deployment Options
+
+#### 1. Development Environment
+Perfect for local development with hot-reload and debugging:
+
+```bash
+# Start development environment
+podman-compose -f podman-compose.dev.yml --env-file .env.dev up -d --build
+
+# View logs
+podman-compose -f podman-compose.dev.yml logs -f
+
+# Stop environment
+podman-compose -f podman-compose.dev.yml down
+```
+
+**Features:**
+- ✅ React hot-reload on port 3333
+- ✅ FastAPI auto-reload on port 8888
+- ✅ SQLite database (no PostgreSQL needed)
+- ✅ Volume mounts for live code editing
+- ✅ Development debugging enabled
+
+#### 2. Test Environment
+Mimics production but with test data and configurations:
+
+```bash
+# Start test environment
+podman-compose -f podman-compose.test.yml --env-file .env.test up -d --build
+
+# Run tests
+podman-compose -f podman-compose.test.yml exec backend pytest
+podman-compose -f podman-compose.test.yml exec frontend npm test
+
+# Stop environment
+podman-compose -f podman-compose.test.yml down
+```
+
+**Features:**
+- ✅ Production-like PostgreSQL database
+- ✅ Optimized production builds
+- ✅ Test data and configurations
+- ✅ Health checks and monitoring
+
+#### 3. Production Environment
+Full production deployment with security and performance optimizations:
+
+```bash
+# Configure production environment
+cp .env.podman.template .env.prod
+nano .env.prod  # Edit with your production settings
+
+# Deploy to production
+podman-compose -f podman-compose.yml --env-file .env.prod up -d --build
+
+# Monitor deployment
+podman-compose -f podman-compose.yml ps
+podman-compose -f podman-compose.yml logs
+```
+
+**Features:**
+- ✅ PostgreSQL database with persistence
+- ✅ Nginx reverse proxy
+- ✅ Production optimizations
+- ✅ Health checks and restart policies
+- ✅ Secure networking and isolation
+
+### Environment Configuration Files
+
+The project includes pre-configured environment files for different deployment scenarios:
+
+| File | Purpose | Database | Features |
+|------|---------|----------|----------|
+| `.env.dev` | Development | SQLite | Hot-reload, debugging |
+| `.env.test` | Testing | PostgreSQL | Test data, CI/CD |
+| `.env.prod` | Production | PostgreSQL | Security, performance |
+
+### Podman Basic Commands
+
+#### Container Management
+```bash
+# List running containers
+podman ps
+
+# List all containers (including stopped)
+podman ps -a
+
+# View container logs
+podman logs <container-name>
+
+# Execute command in container
+podman exec -it <container-name> /bin/bash
+
+# Stop container
+podman stop <container-name>
+
+# Remove container
+podman rm <container-name>
+```
+
+#### Image Management
+```bash
+# List images
+podman images
+
+# Remove image
+podman rmi <image-name>
+
+# Build image
+podman build -t my-app .
+
+# Pull image from registry
+podman pull registry.redhat.io/ubi8/ubi
+```
+
+#### Compose Operations
+```bash
+# Start services in background
+podman-compose up -d
+
+# Start services with build
+podman-compose up -d --build
+
+# View service status
+podman-compose ps
+
+# View logs for all services
+podman-compose logs
+
+# View logs for specific service
+podman-compose logs frontend
+
+# Stop all services
+podman-compose down
+
+# Stop and remove volumes
+podman-compose down -v
+```
+
+### Debugging and Troubleshooting
+
+#### Common Issues and Solutions
+
+**1. Permission Denied Errors**
+```bash
+# Fix rootless permissions
+podman unshare chown -R $(id -u):$(id -g) ./data
+```
+
+**2. Port Already in Use**
+```bash
+# Find process using port
+lsof -i :8888
+# Kill process or change port in compose file
+```
+
+**3. Container Won't Start**
+```bash
+# Check container logs
+podman logs <container-name>
+
+# Check system resources
+podman system info
+
+# Check for image issues
+podman inspect <image-name>
+```
+
+**4. Database Connection Issues**
+```bash
+# Check database container status
+podman-compose ps db
+
+# Connect to database directly
+podman-compose exec db psql -U postgres -d datacontracts
+
+# Check database logs
+podman-compose logs db
+```
+
+#### Debugging Commands
+
+**Container Inspection:**
+```bash
+# Inspect running container
+podman inspect <container-name>
+
+# Check container processes
+podman top <container-name>
+
+# Monitor container stats
+podman stats <container-name>
+```
+
+**Network Debugging:**
+```bash
+# List networks
+podman network ls
+
+# Inspect network
+podman network inspect <network-name>
+
+# Test connectivity between containers
+podman exec frontend ping backend
+```
+
+**Volume Management:**
+```bash
+# List volumes
+podman volume ls
+
+# Inspect volume
+podman volume inspect <volume-name>
+
+# Backup volume data
+podman run --rm -v <volume-name>:/data -v $(pwd):/backup alpine tar czf /backup/backup.tar.gz -C /data .
+```
+
+#### Performance Monitoring
+
+```bash
+# System-wide stats
+podman system info
+
+# Container resource usage
+podman stats
+
+# Check image sizes
+podman images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
+
+# Clean up unused resources
+podman system prune -a
+```
+
+#### Development Workflow
+
+**Hot Development Cycle:**
+```bash
+# 1. Start development environment
+podman-compose -f podman-compose.dev.yml --env-file .env.dev up -d
+
+# 2. Make code changes (auto-reloads)
+# Edit files in ./frontend/src or ./backend/app
+
+# 3. View logs for debugging
+podman-compose -f podman-compose.dev.yml logs -f frontend
+podman-compose -f podman-compose.dev.yml logs -f backend
+
+# 4. Run tests
+podman-compose -f podman-compose.dev.yml exec backend pytest
+podman-compose -f podman-compose.dev.yml exec frontend npm test
+
+# 5. Clean shutdown
+podman-compose -f podman-compose.dev.yml down
+```
+
+**Production Deployment Cycle:**
+```bash
+# 1. Test locally first
+podman-compose -f podman-compose.test.yml --env-file .env.test up -d --build
+
+# 2. Deploy to production
+podman-compose -f podman-compose.yml --env-file .env.prod up -d --build
+
+# 3. Monitor deployment
+watch "podman-compose -f podman-compose.yml ps"
+
+# 4. Check health
+curl http://localhost:8888/health
+curl http://localhost:3333
+
+# 5. View production logs
+podman-compose -f podman-compose.yml logs -f
+```
+
+### Security Best Practices
+
+#### Rootless Security
+```bash
+# Always run rootless (automatically enabled)
+podman info | grep -i rootless
+
+# Check user namespaces
+podman unshare cat /proc/self/uid_map
+```
+
+#### Network Security
+```bash
+# Use custom networks
+podman network create app-network
+
+# Limit container communication
+# Edit compose files to use specific networks
+```
+
+#### Secret Management
+```bash
+# Never commit secrets to version control
+echo "*.env" >> .gitignore
+echo ".env.*" >> .gitignore
+
+# Use environment files
+cp .env.podman.template .env.prod
+chmod 600 .env.prod  # Restrict permissions
+```
+
+### Migration from Docker
+
+**For Docker users, Podman is nearly identical:**
+
+```bash
+# Replace docker commands with podman
+alias docker='podman'
+alias docker-compose='podman-compose'
+
+# Most Docker commands work unchanged:
+podman run hello-world
+podman build -t myapp .
+podman-compose up -d
+```
+
+**Key Differences:**
+- No daemon required (faster startup)
+- Rootless by default (more secure)
+- Pod support (Kubernetes-like grouping)
+- Better integration with systemd
+
+### Server Deployment without Containers
 
 For direct server deployment:
 

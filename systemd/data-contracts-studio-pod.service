@@ -1,0 +1,21 @@
+[Unit]
+Description=Data Contracts Studio Pod
+Documentation=man:podman-generate-systemd(1)
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor=%t/containers
+
+[Service]
+Environment=PODMAN_SYSTEMD_UNIT=%n
+Restart=on-failure
+TimeoutStopSec=70
+ExecStartPre=/bin/rm -f %t/%n.pid %t/%n.pod-id
+ExecStartPre=/usr/bin/podman pod create --infra-conmon-pidfile %t/%n.pid --pod-id-file %t/%n.pod-id --name data-contracts-studio --publish 8888:8888 --publish 80:80 --publish 5432:5432 --replace
+ExecStart=/usr/bin/podman pod start --pod-id-file %t/%n.pod-id
+ExecStop=/usr/bin/podman pod stop --ignore --pod-id-file %t/%n.pod-id -t 10
+ExecStopPost=/usr/bin/podman pod rm --ignore -f --pod-id-file %t/%n.pod-id
+PIDFile=%t/%n.pid
+Type=forking
+
+[Install]
+WantedBy=default.target

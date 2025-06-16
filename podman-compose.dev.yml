@@ -1,0 +1,72 @@
+# Podman development environment
+# Optimized for rootless containers and development workflow
+
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile.podman
+      target: development
+    ports:
+      - "8888:8888"
+    environment:
+      - DATABASE_URL=sqlite:///./data_contracts.db
+      - DEBUG=True
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - ALLOWED_ORIGINS=["http://localhost:3333", "http://127.0.0.1:3333"]
+      # Development API keys (use test keys)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY:-}
+      - AZURE_OPENAI_KEY=${AZURE_OPENAI_KEY:-}
+    volumes:
+      - ./backend:/app:Z
+      - backend_data:/app/data:Z
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8888/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # Podman development labels
+    labels:
+      io.podman.compose.config-hash: "data-contracts-backend-dev"
+      environment: "development"
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.podman
+      target: development
+    ports:
+      - "3333:3333"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8888/api/v1
+      - REACT_APP_APP_NAME=Data Contracts Studio (Dev)
+      - REACT_APP_VERSION=${VERSION:-dev}
+      - NODE_ENV=development
+      - PORT=3333
+      - HOST=0.0.0.0
+    volumes:
+      - ./frontend/src:/app/src:Z
+      - ./frontend/public:/app/public:Z
+    depends_on:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3333"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # Podman development labels
+    labels:
+      io.podman.compose.config-hash: "data-contracts-frontend-dev"
+      environment: "development"
+
+volumes:
+  backend_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/backend/data

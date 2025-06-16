@@ -1,4 +1,4 @@
-.PHONY: help install dev build test clean docker-build docker-up docker-down backend-dev frontend-dev deploy deploy-pages deploy-server version version-check release lint lint-strict
+.PHONY: help install dev build test clean docker-build docker-up docker-down backend-dev frontend-dev deploy deploy-pages deploy-server version version-check release lint lint-strict podman-setup podman-build podman-up podman-down podman-deploy podman-logs podman-status podman-clean
 
 # Default target
 help:
@@ -40,6 +40,16 @@ help:
 	@echo "  docker-up      - Start application with Docker Compose"
 	@echo "  docker-down    - Stop Docker Compose services"
 	@echo "  docker-dev     - Start development environment with Docker"
+	@echo ""
+	@echo "🐳 Podman (Recommended for Production):"
+	@echo "  podman-setup   - Setup Podman security and configuration"
+	@echo "  podman-build   - Build Podman images"
+	@echo "  podman-up      - Start services with Podman"
+	@echo "  podman-down    - Stop Podman services"
+	@echo "  podman-deploy  - Full Podman deployment"
+	@echo "  podman-logs    - View Podman service logs"
+	@echo "  podman-status  - Show Podman service status"
+	@echo "  podman-clean   - Clean up Podman containers and images"
 	@echo ""
 	@echo "📋 Versioning & Release:"
 	@echo "  version        - Show current version"
@@ -133,6 +143,75 @@ docker-down:
 docker-dev:
 	@echo "🐳 Starting development environment with Docker..."
 	docker-compose -f docker-compose.dev.yml up --build
+
+# ===============================
+# 🐳 Podman Targets
+# ===============================
+
+# Setup Podman security and configuration
+podman-setup:
+	@echo "🔒 Setting up Podman security configuration..."
+	@chmod +x scripts/setup-podman-security.sh
+	@./scripts/setup-podman-security.sh
+
+# Build Podman images
+podman-build:
+	@echo "🔨 Building Podman images..."
+	@chmod +x scripts/deploy-podman.sh
+	@./scripts/deploy-podman.sh build
+
+# Start services with Podman
+podman-up:
+	@echo "🚀 Starting services with Podman..."
+	@chmod +x scripts/deploy-podman.sh
+	@./scripts/deploy-podman.sh start
+
+# Stop Podman services
+podman-down:
+	@echo "🛑 Stopping Podman services..."
+	@chmod +x scripts/deploy-podman.sh
+	@./scripts/deploy-podman.sh stop
+
+# Full Podman deployment
+podman-deploy:
+	@echo "🚀 Full Podman deployment..."
+	@chmod +x scripts/deploy-podman.sh
+	@./scripts/deploy-podman.sh deploy
+
+# View Podman service logs
+podman-logs:
+	@echo "📋 Viewing Podman service logs..."
+	@chmod +x scripts/deploy-podman.sh
+	@./scripts/deploy-podman.sh logs
+
+# Show Podman service status
+podman-status:
+	@echo "📊 Podman service status..."
+	@chmod +x scripts/deploy-podman.sh
+	@./scripts/deploy-podman.sh status
+
+# Clean up Podman containers and images
+podman-clean:
+	@echo "🧹 Cleaning up Podman containers and images..."
+	@chmod +x scripts/deploy-podman.sh
+	@./scripts/deploy-podman.sh clean
+
+# Restart Podman services
+podman-restart:
+	@echo "🔄 Restarting Podman services..."
+	@chmod +x scripts/deploy-podman.sh
+	@./scripts/deploy-podman.sh restart
+
+# Generate systemd service files
+podman-systemd:
+	@echo "⚙️ Generating systemd service files..."
+	@chmod +x scripts/deploy-podman.sh
+	@./scripts/deploy-podman.sh systemd
+
+# Development with Podman
+podman-dev:
+	@echo "🔧 Starting development environment with Podman..."
+	@podman-compose -f podman-compose.dev.yml up -d || podman compose -f podman-compose.dev.yml up -d
 
 # Cleanup
 clean:

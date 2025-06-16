@@ -2,6 +2,10 @@ FROM node:18-alpine AS build
 
 # Version information
 ARG VERSION=0.0.1
+ARG REACT_APP_API_URL=http://localhost:8888/api/v1
+ARG REACT_APP_APP_NAME="Data Contracts Studio"
+ARG REACT_APP_VERSION=0.0.1
+
 LABEL version=${VERSION}
 LABEL description="Data Contracts Studio Frontend"
 LABEL maintainer="Data Contracts Studio Team"
@@ -14,6 +18,11 @@ RUN npm ci --only=production
 
 # Copy source code
 COPY . .
+
+# Set build-time environment variables
+ENV REACT_APP_API_URL=${REACT_APP_API_URL}
+ENV REACT_APP_APP_NAME=${REACT_APP_APP_NAME}
+ENV REACT_APP_VERSION=${REACT_APP_VERSION}
 
 # Build the application
 RUN npm run build
